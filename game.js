@@ -619,6 +619,7 @@ function setState(s) { state = s; stT = 0; }
 /* ============ mise à jour ============ */
 function update(dt) {
   time += dt; stT += dt; shake = Math.max(0, shake - dt * 8);
+  if (state === 'title' || state === 'confirm') updateTitle(dt);
   if (state !== 'play') return;
   const doorX = L.len - 100;
   p.cd -= dt; p.inv -= dt; p.swing -= dt; p.flash -= dt; if (beam) { beam.t -= dt; if (beam.t <= 0) beam = null; }
@@ -806,6 +807,7 @@ function weather(cx) {
 function overlay(a) { ctx.fillStyle = `rgba(8,5,18,${a})`; ctx.fillRect(0, 0, VW, H); }
 function render() {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (state === 'title' || state === 'confirm') { drawTitle(); return; }
   if (shake > 0) ctx.translate((Math.random() - .5) * shake * 3 | 0, (Math.random() - .5) * shake * 3 | 0);
   ctx.drawImage(sky, 0, 0); tile(far, .12); tile(mid, .4);
   const cx = Math.round(camX);
@@ -840,12 +842,7 @@ function render() {
   const blink = (time * 2 | 0) % 2;
   if (state === 'play') { hud(); controls(); }
   else if (state === 'pause') { hud(); overlay(.6); txt(ctx, 'PAUSE', VW / 2, 70, 6, '#fff', 1); button(VW / 2 - 150, 150, 140, 36, '#2a6a3a', 'REPRENDRE'); button(VW / 2 + 10, 150, 140, 36, '#3a5a9a', 'CARTE'); }
-  else if (state === 'title') {
-    overlay(.62); txt(ctx, 'ZOMBIETOWN', VW / 2 + 2, 52, 7, '#5a1d58', 1, false); txt(ctx, 'ZOMBIETOWN', VW / 2, 50, 7, '#f08a3c', 1);
-    txt(ctx, '15 NIVEAUX AUTOUR DU MONDE - UN BOSS TOUS LES 5 NIVEAUX', VW / 2, 104, 1, '#fff', 1);
-    txt(ctx, 'JOYSTICK : SE DEPLACER SUR LE TROTTOIR ET LA ROUTE', VW / 2, 124, 1, '#e9dfd2', 1); txt(ctx, 'POUSSE VERS LE HAUT AU PIED D\'UNE ECHELLE JAUNE POUR MONTER', VW / 2, 134, 1, '#e9dfd2', 1); txt(ctx, 'BOUTON ROUGE : TIRER - FRAPPER QUAND IL N\'Y A PLUS DE MUNITIONS', VW / 2, 144, 1, '#e9dfd2', 1);
-    if (blink) txt(ctx, 'TOUCHE L\'ECRAN', VW / 2, 190, 2, '#f2c230', 1);
-  } else if (state === 'map') drawMap();
+  else if (state === 'map') drawMap();
   else if (state === 'shop') drawShop();
   else if (state === 'clear' || state === 'win') {
     overlay(.6); txt(ctx, state === 'win' ? 'LE MONDE EST SAUVE' : 'NIVEAU TERMINE', VW / 2, 66, 5, '#7aff7a', 1); txt(ctx, 'ZOMBIES TUES : ' + kills, VW / 2, 116, 2, '#fff', 1);
@@ -857,6 +854,72 @@ function render() {
 }
 function coin(x, y) { disc(ctx, x, y, 3, '#b8860f'); disc(ctx, x, y, 2, '#f2c230'); R(ctx, x - 1, y - 1, 1, 1, '#fff6c8'); }
 function button(x, y, w, h, col, label) { R(ctx, x, y, w, h, '#000'); R(ctx, x + 2, y + 2, w - 4, h - 4, col); R(ctx, x + 2, y + 2, w - 4, 2, shade(col, 1.4)); txt(ctx, label, x + w / 2, y + (h >> 1) - 5, 2, '#fff', 1); }
+/* ---------- écran d'accueil ---------- */
+let TB = null, TP = null, TF = null, TZ = [], shopFrom = 'map';
+function titleLayout() { const bw = clamp(Math.round(VW * .34), 136, 196), bx = VW - 16 - bw; return { bw, bx, px: clamp(Math.round(bx * .5), 96, 210) }; }
+function titleButtons() {
+  const { bw, bx } = titleLayout(), list = [];
+  if (SV.unlocked > 0) list.push({ id: 'cont', col: '#2a7a3e', label: 'CONTINUER', sub: 'NIVEAU ' + (SV.unlocked + 1) + ' - ' + LEVELS[SV.unlocked].name });
+  list.push({ id: 'new', col: '#a8322a', label: 'NOUVELLE PARTIE' }, { id: 'shop', col: '#3a5a9a', label: 'BOUTIQUE', sub: SV.coins + ' PIECES' });
+  list.forEach((b, i) => { b.x = bx; b.w = bw; b.h = 36; b.y = (list.length === 3 ? 70 : 92) + i * 42; });
+  return list;
+}
+function buildTitle() {
+  const { px } = titleLayout(), S = SK.sunset; seed = 5;
+  const mesh = (g, x0, y0, w, h, col) => { g.fillStyle = col; for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) if ((x + y) % 6 === 0 || (x - y + 600) % 6 === 0) g.fillRect(x, y, 1, 1); };
+  TB = mk(VW, H); const b = TB.getContext('2d');
+  for (let y = 0; y < H; y++) { const f = Math.min(y / 215, 1) * (S.length - 1.001), i = Math.floor(f); R(b, 0, y, VW, 1, S[i]); if (f - i > .5) { b.fillStyle = S[i + 1]; for (let x = y % 2; x < VW; x += 2) b.fillRect(x, y, 1, 1); } }
+  for (let i = 0; i < 50; i++) R(b, rnd() * VW, rnd() * 70, 1, 1, rnd() < .3 ? '#fff' : '#9a86c8');
+  disc(b, px, 128, 58, '#ffd98a'); disc(b, px, 128, 52, '#fff0c0'); [112, 122, 134, 148, 164].forEach((y, i) => R(b, px - 62, y, 126, 1 + (i > 1) + (i > 3), '#e06a3c'));
+  [['#4a1c5c', 120, 190], ['#2a1244', 160, 215]].forEach(([col, lo, hi], k) => { for (let x = -5; x < VW;) { const w = 14 + rnd() * 22 | 0, top = lo + rnd() * (hi - lo) | 0; R(b, x, top, w, H - top, col); if (rnd() < .35) R(b, x + w / 2, top - 9, 1, 9, col); for (let i = 0; i < 8; i++) if (rnd() < .5) R(b, x + 2 + (rnd() * (w - 4) | 0), top + 3 + (rnd() * 40 | 0), 1, 2, k ? '#f39a44' : '#fbc468'); x += w + (rnd() * 3 | 0); } });
+  R(b, 0, 236, VW, 34, '#191624'); for (let i = 0; i < 200; i++) R(b, rnd() * VW, 237 + rnd() * 33, 2, 1, rnd() < .5 ? '#231f30' : '#120f1a');
+  mesh(b, 0, 200, VW, 38, '#0d0b14'); R(b, 0, 198, VW, 2, '#3a364a'); for (let x = 20; x < VW; x += 58) R(b, x, 192, 2, 46, '#3a364a'); for (let x = 0; x < VW; x += 2) R(b, x, 194 - (x / 2 % 2 | 0) * 2, 1, 1, '#15131c');
+  TP = mk(110, H); const g = TP.getContext('2d'); g.imageSmoothingEnabled = false;
+  [['#5a6a8a', 0, 55, 240, .02], ['#e0a81e', 1, 51, 214, -.05], ['#7a2a2e', 0, 59, 188, .06], ['#e0a81e', 1, 54, 162, -.03]].forEach(([col, taxi, x, y, r]) => {
+    const cc = mk(84, 38), cg = cc.getContext('2d'); cg.translate(3, -229); carArt(cg, 0, col, taxi);
+    g.save(); g.translate(x, y); g.rotate(r); g.drawImage(cc, -42, -19); g.restore();
+  });
+  TF = mk(VW, H); const f = TF.getContext('2d');
+  mesh(f, 0, 230, VW, 40, '#0d0b14'); mesh(f, 0, 231, VW, 39, 'rgba(110,106,128,.35)'); R(f, 0, 228, VW, 2, '#6e6a80'); R(f, 0, 230, VW, 1, '#2e2a3c');
+  for (let x = 8; x < VW; x += 64) { R(f, x, 220, 3, 50, '#6e6a80'); R(f, x + 3, 220, 1, 50, '#2e2a3c'); }
+  for (let x = 0; x < VW; x += 2) R(f, x, 224 - (x / 2 % 2 | 0) * 2, 1, 1, '#c9c2d4'); for (let x = 6; x < VW; x += 14) R(f, x, 221, 1, 5, '#8d95a4');
+  const sx0 = px + 78; R(f, sx0, 238, 46, 20, '#15131c'); R(f, sx0 + 1, 239, 44, 18, '#e0b020'); txt(f, 'DANGER', sx0 + 23, 242, 1, '#15131c', 1, false); txt(f, 'ZOMBIES', sx0 + 23, 249, 1, '#7a1c1c', 1, false);
+  TZ = []; for (let i = 0, n = Math.round(VW / 19); i < n; i++) TZ.push({ x: Math.random() * VW, y: 238 + Math.random() * 24, sp: 10 + Math.random() * 16, ph: Math.random() * 6, pal: ZPALS.city[i % ZPALS.city.length], tx: Math.random() * VW, ty: 238 + Math.random() * 24, dir: 1, wait: 0 });
+}
+function updateTitle(dt) {
+  TZ.forEach(z => {
+    if (z.wait > 0) { z.wait -= dt; return; }
+    const dx = z.tx - z.x, dy = z.ty - z.y, m = Math.hypot(dx, dy);
+    if (m < 3) { z.tx = Math.random() * VW; z.ty = 238 + Math.random() * 24; z.wait = Math.random() * 1.2; }
+    else { z.x += dx / m * z.sp * dt; z.y += dy / m * z.sp * .5 * dt; z.dir = dx < 0 ? -1 : 1; z.ph += dt * 5; }
+  });
+}
+function drawTitle() {
+  if (!TB || TB.width !== VW) buildTitle();
+  const { px } = titleLayout(), t = time;
+  ctx.drawImage(TB, 0, 0);
+  for (let i = 0; i < 16; i++) { const k = (t * .25 + i / 16) % 1; R(ctx, px + 32 + Math.sin(i * 2 + t) * 5 + k * 26, 168 - k * 120, 5 + k * 10, 4 + k * 5, `rgba(40,26,50,${.5 * (1 - k)})`); }
+  for (let i = 0; i < 5; i++) R(ctx, px + 30 + i * 2, 170 - (Math.sin(t * 9 + i) * 3 + 4), 2, Math.sin(t * 9 + i) * 3 + 5, i % 2 ? '#f39a44' : '#ffe14a');
+  const zs = TZ.slice().sort((a, b) => a.y - b.y), dz = z => { const f = (z.ph | 0) % 2; R(ctx, z.x - 10, z.y - 2, 22, 4, 'rgba(0,0,0,.35)'); blit(zSpr(z.pal)[f], z.x, z.y - 40 + f * 2, z.dir > 0, 8, 2); };
+  zs.filter(z => z.y < 256).forEach(dz);
+  R(ctx, px - 42, 256, 84, 3, 'rgba(0,0,0,.4)'); ctx.drawImage(TP, px - 55, 0);
+  const hx = px - 4, hy = 107 + (Math.sin(t * 2) > 0 ? 1 : 0), m = MELEE.batte;
+  blit(heroS[0], hx, hy, false, 7, 2); R(ctx, hx + 12, hy - 10, 4, 22, m.col); R(ctx, hx + 10, hy - 16, 8, 8, m.tip); R(ctx, hx + 12, hy + 12, 4, 4, '#3a2a1e');
+  zs.filter(z => z.y >= 256).forEach(dz);
+  ctx.drawImage(TF, 0, 0);
+  const sc = VW >= 520 ? 6 : 4;
+  txt(ctx, 'ZOMBIETOWN', VW - 14, 20, sc, '#5a1d58', 2, false); txt(ctx, 'ZOMBIETOWN', VW - 16, 18, sc, '#f08a3c', 2);
+  txt(ctx, '15 NIVEAUX AUTOUR DU MONDE', VW - 16, 24 + sc * 5, 1, '#e9dfd2', 2);
+  titleButtons().forEach((b, i) => {
+    const pulse = i === 0 && (t * 2 | 0) % 2;
+    R(ctx, b.x - pulse, b.y - pulse, b.w + pulse * 2, b.h + pulse * 2, pulse ? '#fff' : '#000'); R(ctx, b.x + 2, b.y + 2, b.w - 4, b.h - 4, b.col); R(ctx, b.x + 2, b.y + 2, b.w - 4, 2, shade(b.col, 1.4)); R(ctx, b.x + 2, b.y + b.h - 5, b.w - 4, 3, shade(b.col, .7));
+    txt(ctx, b.label, b.x + b.w / 2, b.y + (b.sub ? 7 : 13), 2, '#fff', 1); if (b.sub) txt(ctx, b.sub, b.x + b.w / 2, b.y + 23, 1, shade(b.col, 2.4), 1);
+  });
+  if (state === 'confirm') {
+    overlay(.78); txt(ctx, 'RECOMMENCER A ZERO ?', VW / 2, 64, 3, '#fff', 1); txt(ctx, 'LES NIVEAUX SERONT VERROUILLES A NOUVEAU', VW / 2, 98, 1, '#e9dfd2', 1); txt(ctx, 'TES PIECES ET TES SKINS SONT CONSERVES', VW / 2, 110, 1, '#7aff7a', 1);
+    button(VW / 2 - 150, 150, 140, 36, '#a8322a', 'OUI'); button(VW / 2 + 10, 150, 140, 36, '#3a5a9a', 'NON');
+  }
+}
 /* ---------- carte des niveaux ---------- */
 const MAPW = 140 + (LEVELS.length - 1) * 62, bxW = i => 70 + i * 62, byW = i => 146 + Math.round(Math.sin(i * 1.1) * 30);
 function drawMap() {
@@ -874,7 +937,8 @@ function drawMap() {
     txt(ctx, lv.name, x, y + r + 6, 1, lock ? '#6a6a80' : '#fff', 1); if (bs) txt(ctx, 'BOSS', x, y + r + 14, 1, lock ? '#7a4a4a' : '#ff5a5a', 1);
     if (cur) blit(heroS[(time * 4 | 0) % 2], x, y - r - 24, false, 7);
   });
-  txt(ctx, 'TOUCHE UN NIVEAU POUR JOUER - GLISSE POUR FAIRE DEFILER', VW / 2, H - 16, 1, '#a596b8', 1);
+  txt(ctx, 'TOUCHE UN NIVEAU POUR JOUER - GLISSE POUR FAIRE DEFILER', VW / 2 + 30, H - 16, 1, '#a596b8', 1);
+  button(16, H - 34, 64, 24, '#5a4a7a', 'MENU');
 }
 /* ---------- boutique ---------- */
 function shopCards() { const cw = Math.min(96, ((VW - 32) / 5 | 0) - 6), x0 = (VW - (cw * 5 + 24)) >> 1; return SKINS.map((k, i) => ({ x: x0 + (i % 5) * (cw + 6), y: 42 + (i / 5 | 0) * 112, w: cw, h: 106 })); }
@@ -924,14 +988,21 @@ function click(gx, gy) {
   initAudio();
   if (stT < .35) return;
   const left = gx < VW / 2, inBtn = gy > 144 && gy < 192;
-  if (state === 'title' || state === 'clear' || state === 'win') openMap();
+  if (state === 'title') {
+    const b = titleButtons().find(k => gx >= k.x && gx <= k.x + k.w && gy >= k.y && gy <= k.y + k.h); if (!b) return;
+    snd(520, .1, 'square', .05, 200);
+    if (b.id === 'shop') { shopFrom = 'title'; setState('shop'); } else if (b.id === 'new' && SV.unlocked > 0) setState('confirm'); else openMap();
+  }
+  else if (state === 'confirm') { if (inBtn && left) { SV.unlocked = 0; carry = null; persist(); loadLevel(0); openMap(); } else if (inBtn) setState('title'); }
+  else if (state === 'clear' || state === 'win') openMap();
   else if (state === 'pause') { if (inBtn && left) state = 'play'; else if (inBtn) { carry = null; persist(); openMap(); } }
   else if (state === 'dead') { if (inBtn && left) startLevel(li); else if (inBtn) openMap(); }
   else if (state === 'map') {
-    if (gx > VW - 116 && gy < 38) { setState('shop'); return; }
+    if (gx > VW - 116 && gy < 38) { shopFrom = 'map'; setState('shop'); return; }
+    if (gx < 84 && gy > H - 38) { setState('title'); return; }
     for (let i = 0; i <= SV.unlocked; i++) if (Math.hypot(gx + mapX - bxW(i), gy - byW(i)) < 20) { snd(520, .1, 'square', .05, 200); startLevel(i); return; }
   } else if (state === 'shop') {
-    if (gx < 96 && gy < 38) { openMap(); return; }
+    if (gx < 96 && gy < 38) { if (shopFrom === 'title') setState('title'); else openMap(); return; }
     shopCards().forEach((c, i) => {
       if (gx < c.x || gx > c.x + c.w || gy < c.y || gy > c.y + c.h) return;
       if (!SV.owned.includes(i)) { if (SV.coins < SKINS[i].price) { snd(120, .15, 'sawtooth', .05, -40); return; } SV.coins -= SKINS[i].price; SV.owned.push(i); }
@@ -964,7 +1035,7 @@ wrap.addEventListener('touchend', e => each(e, up), { passive: false });
 wrap.addEventListener('touchcancel', e => each(e, up), { passive: false });
 wrap.addEventListener('mousedown', e => down('m', e)); addEventListener('mousemove', e => move('m', e)); addEventListener('mouseup', () => up('m'));
 wrap.addEventListener('contextmenu', e => e.preventDefault());
-addEventListener('keydown', e => { keys[e.code] = true; if ((e.code === 'Space' || e.code === 'Enter') && state !== 'play' && stT > .35) { initAudio(); if (state === 'map' || state === 'dead') startLevel(state === 'map' ? SV.unlocked : li); else if (state === 'pause') state = 'play'; else openMap(); } if (e.code.startsWith('Arrow') || e.code === 'Space') e.preventDefault(); });
+addEventListener('keydown', e => { keys[e.code] = true; if ((e.code === 'Space' || e.code === 'Enter') && state !== 'play' && stT > .35) { initAudio(); if (state === 'map' || state === 'dead') startLevel(state === 'map' ? SV.unlocked : li); else if (state === 'pause') state = 'play'; else if (state === 'confirm') setState('title'); else if (state === 'shop' && shopFrom === 'title') setState('title'); else openMap(); } if (e.code.startsWith('Arrow') || e.code === 'Space') e.preventDefault(); });
 addEventListener('keyup', e => { keys[e.code] = false; });
 addEventListener('resize', resize); addEventListener('orientationchange', () => setTimeout(resize, 200));
 addEventListener('blur', () => { up(joy.id); fireId = null; });
