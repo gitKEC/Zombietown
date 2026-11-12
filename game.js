@@ -270,12 +270,36 @@ function farLayer(L) {
   }
   return c;
 }
+const P3 = col => [shade(col, .64), col, shade(col, 1.38)];
+function leafBall(g, x, y, r, c) {
+  disc(g, x, y, r, c[0]); disc(g, x - (r * .2 | 0), y - (r * .25 | 0), r * .78 | 0, c[1]); disc(g, x - (r * .38 | 0), y - (r * .45 | 0), r * .4 | 0, c[2]);
+  for (let i = 0; i < r * 1.5; i++) { const a = rnd() * 6.28, d = rnd() * r * .85; R(g, x + Math.cos(a) * d, y + Math.sin(a) * d, 1 + (r > 12), 1, rnd() < .5 ? c[2] : c[0]); }
+}
+function conifer(g, cx, base, h, c, snow, wf = .3, noTrunk = false, tc = '#4a3626') {
+  const tw = Math.max(2, h / 16 | 0), n = Math.max(3, h / 13 | 0), top = base - h, fh = h * (noTrunk ? 1 : .86), step = fh / n, th = step * 1.55, maxw = h * wf;
+  if (!noTrunk) { R(g, cx - (tw >> 1), base - h * .2, tw, h * .2, tc); R(g, cx - (tw >> 1), base - h * .2, 1, h * .2, shade(tc, 1.3)); }
+  for (let i = 0; i < n; i++) {
+    const y0 = top + i * step, w0 = maxw * (i + 1) / n;
+    for (let r = 0; r < th; r++) {
+      const y = y0 + r | 0, hw = Math.max(1, w0 * (.25 + .75 * r / th) + ((r + i) % 3 === 0 ? 1.5 : 0)) | 0; if (!noTrunk && y >= base - 3) break;
+      R(g, cx - hw, y, hw, 1, c[1]); R(g, cx, y, hw, 1, c[0]);
+      if (r > th - 3) R(g, cx - hw + 2, y, hw * 2 - 4, 1, c[0]);
+      else if (r % 2 === 0 && hw > 3) { R(g, cx - hw + 1 + (rnd() * hw * .7 | 0), y, 1 + (hw > 12), 1, c[2]); if (hw > 10) R(g, cx + (rnd() * hw * .8 | 0), y, 2, 1, c[1]); }
+      if (snow && r < 2) R(g, cx - hw, y, hw + (hw >> 1), 1, '#eef2f8');
+    }
+    R(g, cx - 1, y0, 2, 2, c[2]);
+  }
+}
 function deco(g, t, x, b, s, snow) {
   const P = (dx, dy, w, h, col) => R(g, x + dx * s, b + dy * s, w * s, h * s, col);
   if (t === 'palm') { for (let i = 0; i < 13; i++) P(Math.sin(i / 5) * 2, -i * 2 - 2, 2, 2, i % 2 ? '#7a5a34' : '#6a4a2a'); [[-9, -27, 9, 2], [1, -27, 9, 2], [-7, -30, 7, 2], [1, -30, 7, 2], [-10, -24, 5, 2], [6, -24, 5, 2], [-2, -32, 5, 3]].forEach(a => P(...a, '#3f8a44')); P(-11, -22, 3, 2, '#2e6a36'); P(9, -22, 3, 2, '#2e6a36'); }
   else if (t === 'cactus') { P(0, -14, 2, 14, '#5a7a3a'); P(-4, -11, 4, 2, '#5a7a3a'); P(-4, -15, 2, 5, '#5a7a3a'); P(2, -8, 4, 2, '#5a7a3a'); P(4, -12, 2, 5, '#5a7a3a'); }
-  else if (t === 'pine') { P(0, -5, 2, 5, '#4a3a2a'); for (let i = 0; i < 5; i++) { P(-6 + i, -8 - i * 4, 14 - i * 2, 4, i % 2 ? '#2a5a40' : '#346a48'); if (snow) P(-6 + i, -8 - i * 4, 14 - i * 2, 1, '#eef2f8'); } }
-  else if (t === 'tree' || t === 'autumn') { const A = t === 'tree' ? ['#2e7a3c', '#3a8a46', '#256a34', '#4a9a52'] : ['#d8622a', '#e8a030', '#b83a24', '#e8c040']; P(0, -12, 3, 12, '#5a4028'); disc(g, x + s, b - 20 * s, 9 * s, A[0]); disc(g, x - 5 * s, b - 15 * s, 6 * s, A[1]); disc(g, x + 7 * s, b - 15 * s, 6 * s, A[2]); disc(g, x - 2 * s, b - 24 * s, 4 * s, A[3]); }
+  else if (t === 'pine') conifer(g, x + s, b, (24 + (rnd() * 12 | 0)) * s, P3(rnd() < .5 ? '#2e5e42' : '#27523a'), snow, .32);
+  else if (t === 'tree' || t === 'autumn') {
+    const A = t === 'tree' ? ['#2e7a3c', '#388844', '#27683a'] : ['#d8622a', '#e8a030', '#b83a24', '#e8c040'];
+    P(-1, -14, 3, 14, '#5a4028'); P(-1, -14, 1, 14, '#7a5a3a'); P(-4, -17, 4, 2, '#5a4028'); P(2, -19, 4, 2, '#5a4028');
+    [[4, -17, 6], [-5, -18, 6], [0, -24, 7], [-3, -27, 4], [5, -25, 4]].forEach(([dx, dy, r]) => leafBall(g, x + dx * s, b + dy * s, r * s, P3(pick(A))));
+  }
   else if (t === 'dead') { P(0, -18, 2, 18, '#3a3428'); P(-5, -14, 5, 1, '#3a3428'); P(-5, -19, 1, 5, '#3a3428'); P(2, -10, 5, 1, '#3a3428'); P(6, -16, 1, 6, '#3a3428'); P(-2, -22, 1, 5, '#3a3428'); }
   else if (t === 'cypress') { P(0, -4, 2, 4, '#4a3a2a'); for (let i = 0; i < 14; i++) { const w = i < 3 ? 2 + i : i > 10 ? 15 - i : 5; P(1 - w / 2, -6 - i * 2, w, 2, i % 3 ? '#1e4a34' : '#2a5a40'); } }
   else if (t === 'ice') { for (let i = 0; i < 12; i++) P(-i / 2, -24 + i * 2, i + 1, 2, i % 3 ? '#d8ecf8' : '#a8cce0'); for (let i = 0; i < 7; i++) P(8 - i / 2, -14 + i * 2, i + 1, 2, '#c0dcec'); }
@@ -665,17 +689,44 @@ function trunkArt(c, L, x, w, front) {
   R(c, x, 0, w, 210, base); R(c, x, 0, 2, 210, l); R(c, x + w - 3, 0, 3, 210, d);
   for (let bx = x + 3; bx < x + w - 3; bx += 3 + (rnd() * 3 | 0)) for (let y = rnd() * 20 | 0; y < 204; y += 14 + (rnd() * 10 | 0)) R(c, bx, y, 1, 6 + (rnd() * 6 | 0), d);
   R(c, x - 3, 203, w + 6, 7, base); R(c, x - 6, 207, w + 12, 3, base); R(c, x - 3, 203, 2, 7, l);
-  if (L.tree === 'pine') for (let by = -4; by < 118; by += 12) { const hw = w / 2 + 5 + by * .2; R(c, x + w / 2 - hw, by, hw * 2, 8, front ? L.leaf[(by / 12 | 0) % 2] : L.leaf[2]); R(c, x + w / 2 - hw + 3, by + 8, hw * 2 - 6, 2, L.leaf[2]); }
+  for (let k = 0; k < w / 6; k++) { const kx = x + 3 + rnd() * (w - 8) | 0, ky = 30 + rnd() * 150 | 0; R(c, kx, ky, 3, 4, d); R(c, kx + 1, ky + 1, 1, 2, shade(base, .5)); }
+  for (let k = 0; k < w; k += 2) if (rnd() < .6) R(c, x - 3 + k, 204 + rnd() * 5, 2, 2, L.leaf[0]);
 }
 function genForest(c, L) {
   const end = L.len - 200, T = L.tree; let x = 0, last = 0, alt = 0, prev = '', pi = 0, first = true;
   const np = () => L.picks[pi++ % L.picks.length], wood = '#7a5632', woodD = '#5a3e22';
+  const bushes = (x0, w) => { for (let i = 0; i < w / 28; i++) { const bx = x0 + rnd() * w | 0; leafBall(c, bx, 207, 7 + (rnd() * 4 | 0), P3(pick(L.leaf))); leafBall(c, bx + 7, 208, 5, P3(pick(L.leaf))); } };
   const grove = (x0, w) => {
-    const n = T === 'bamboo' ? 6 + w / 14 | 0 : T === 'sequoia' ? 1 + (w > 120) : 2 + w / 55 | 0, tw = () => T === 'bamboo' ? 4 + (rnd() * 3 | 0) : T === 'sequoia' ? 30 + (rnd() * 16 | 0) : T === 'pine' ? 9 + (rnd() * 6 | 0) : 12 + (rnd() * 9 | 0);
-    for (let i = 0; i <= n; i++) trunkArt(c, L, x0 + rnd() * (w - 16) | 0, Math.max(4, tw() * .7 | 0), false);
-    for (let i = 0; i < n; i++) { const ww = tw(); trunkArt(c, L, x0 + ((i + .15 + rnd() * .5) * (w / n)) - ww / 2 | 0, ww, true); }
-    if (T !== 'pine') for (let i = 0; i < w / 6; i++) disc(c, x0 + rnd() * w | 0, -8 + rnd() * (T === 'oak' ? 74 : 38) | 0, 9 + rnd() * 10 | 0, pick(L.leaf));
-    for (let i = 0; i < w / 30; i++) { const bx = x0 + rnd() * w | 0; disc(c, bx, 207, 7 + rnd() * 4 | 0, L.leaf[2] || L.leaf[0]); disc(c, bx + 5, 205, 5, L.leaf[0]); }
+    if (T === 'bamboo') {
+      const n = 6 + w / 14 | 0;
+      for (let i = 0; i <= n; i++) trunkArt(c, L, x0 + rnd() * (w - 8) | 0, 3 + (rnd() * 2 | 0), false);
+      for (let i = 0; i < n; i++) trunkArt(c, L, x0 + ((i + .15 + rnd() * .5) * (w / n)) | 0, 4 + (rnd() * 3 | 0), true);
+      for (let i = 0; i < w / 7; i++) leafBall(c, x0 + rnd() * w | 0, -6 + rnd() * 44 | 0, 6 + (rnd() * 6 | 0), P3(pick(L.leaf)));
+      bushes(x0, w); return;
+    }
+    /* rang du fond : arbres entiers, plus sombres */
+    for (let bx = x0 + 8 + rnd() * 18; bx < x0 + w - 6; bx += 24 + rnd() * 26) {
+      const h = 96 + rnd() * 76 | 0, cx = bx | 0;
+      if (T === 'oak') {
+        const hh = h * .7 | 0, tc = shade(L.trunk, .72); R(c, cx - 3, 210 - hh, 6, hh, tc); R(c, cx - 3, 210 - hh, 1, hh, shade(tc, 1.3)); R(c, cx - 9, 214 - hh, 7, 2, tc); R(c, cx + 3, 208 - hh, 8, 2, tc);
+        for (let j = 0; j < 7; j++) leafBall(c, cx + (rnd() - .5) * 40 | 0, 204 - hh + (rnd() - .6) * 34 | 0, 11 + (rnd() * 8 | 0), P3(shade(pick(L.leaf), .8)));
+      } else conifer(c, cx, 210, h, P3(shade(L.leaf[0], .78)), false, .27, false, shade(L.trunk, .7));
+    }
+    /* premier plan : géants dont le feuillage sort par le haut de l'écran */
+    const n = T === 'sequoia' ? 1 + (w > 130) : Math.max(1, w / 90 | 0);
+    for (let i = 0; i < n; i++) {
+      const ww = T === 'sequoia' ? 30 + (rnd() * 16 | 0) : T === 'pine' ? 11 + (rnd() * 5 | 0) : 14 + (rnd() * 8 | 0), tx = x0 + ((i + .25 + rnd() * .5) * (w / n)) - ww / 2 | 0, mx = tx + (ww >> 1);
+      trunkArt(c, L, tx, ww, true);
+      if (T === 'pine') conifer(c, mx, 104 + (rnd() * 26 | 0), 300, P3(L.leaf[1]), false, .21, true);
+      else if (T === 'oak') {
+        [-1, 1].forEach(dd => { for (let k = 0; k < 30; k++) R(c, mx + dd * (ww / 2 - 2 + k * 1.2) - 2, 84 - k * 1.7, 5 - (k / 8 | 0), 3, k % 5 ? L.trunk : shade(L.trunk, .75)); });
+        for (let j = 0; j < 11; j++) leafBall(c, mx + (rnd() - .5) * 130 | 0, -8 + rnd() * 60 | 0, 15 + (rnd() * 13 | 0), P3(pick(L.leaf)));
+      } else {
+        for (let k = 0; k < 5; k++) { const sd = k % 2 ? 1 : -1, yy = 8 + k * 25 + (rnd() * 8 | 0); R(c, sd > 0 ? tx + ww : tx - 16, yy + 5, 16, 3, shade(L.trunk, .75)); leafBall(c, sd > 0 ? tx + ww + 18 : tx - 18, yy, 10 + (rnd() * 5 | 0), P3(pick(L.leaf))); leafBall(c, sd > 0 ? tx + ww + 9 : tx - 9, yy + 5, 7, P3(pick(L.leaf))); }
+        for (let j = 0; j < 6; j++) leafBall(c, mx + (rnd() - .5) * 96 | 0, -10 + rnd() * 22 | 0, 14 + (rnd() * 8 | 0), P3(pick(L.leaf)));
+      }
+    }
+    bushes(x0, w);
   };
   while (x < end - 30) {
     let t = first ? 'grove' : x - last > 350 ? (alt++ % 2 ? 'stand' : 'cabin') : pick(['grove', 'grove', 'camp', 'rocks', 'grove']);
