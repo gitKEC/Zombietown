@@ -58,11 +58,40 @@ const SKINS = [
 const skinCache = [];
 const skinSpr = i => skinCache[i] || (skinCache[i] = [sprite(HERO_A, SKINS[i].pal), sprite(HERO_B, SKINS[i].pal)]);
 /* sauvegarde : progression, pièces, skins */
-const SV = { unlocked: 0, coins: 0, owned: [0], skin: 0 };
+const SV = { unlocked: 0, coins: 0, owned: [0], skin: 0, q: {}, qc: [], pets: [], pet: '', secrets: [] };
 try { const o = JSON.parse(localStorage.getItem('zt_save') || 'null'); if (o) Object.assign(SV, o); else SV.unlocked = clamp(+localStorage.getItem('zt_level') || 0, 0, 14); } catch (e) { /* stockage indisponible */ }
 if (!SKINS[SV.skin]) SV.skin = 0;
 const persist = () => { try { localStorage.setItem('zt_save', JSON.stringify(SV)); } catch (e) { /* stockage indisponible */ } };
 let heroS = skinSpr(SV.skin);
+/* animaux de compagnie */
+const PETS = {
+  poule: { n: 'POULE', d: 'POND DES OEUFS', price: 150, sp: 70, range: 9, dmg: 1, cd: .35, egg: 16 },
+  chien: { n: 'BERGER ALLEMAND', d: 'MORD FORT', price: 300, sp: 100, range: 13, dmg: 2, cd: .55 },
+  autruche: { n: 'AUTRUCHE', d: 'GROS COUPS DE PATTE', price: 450, sp: 115, range: 15, dmg: 5, cd: .9 },
+};
+const PET_IDS = ['', 'poule', 'chien', 'autruche'];
+if (SV.pet && !PETS[SV.pet]) SV.pet = '';
+/* quêtes */
+const QUESTS = [
+  { id: 'k100', n: 'TUER 100 ZOMBIES', goal: 100, r: 60 },
+  { id: 'melee', n: 'TUER 50 ZOMBIES AU CORPS A CORPS', goal: 50, r: 100, w: 'melee' },
+  { id: 'shotgun', n: 'TUER 100 ZOMBIES AU FUSIL A POMPE', goal: 100, r: 120, w: 'shotgun' },
+  { id: 'uzi', n: "TUER 100 ZOMBIES A L'UZI", goal: 100, r: 120, w: 'uzi' },
+  { id: 'pet', n: 'TON ANIMAL TUE 30 ZOMBIES', goal: 30, r: 120, w: 'pet' },
+  { id: 'nohit', n: 'FINIR UN NIVEAU SANS ETRE TOUCHE', goal: 1, r: 150 },
+  { id: 'ghost', n: 'FINIR UN NIVEAU SANS ETRE TOUCHE NI TUER', goal: 1, r: 300 },
+  { id: 'secret', n: 'TROUVER 3 PIECES CACHEES', goal: 3, r: 150 },
+  { id: 'boss', n: 'VAINCRE 2 BOSS', goal: 2, r: 200 },
+  { id: 'k1000', n: 'TUER 1000 ZOMBIES', goal: 1000, r: 400 },
+];
+let toasts = [];
+function qAdd(id, n = 1) {
+  const q = QUESTS.find(k => k.id === id); if (!q || SV.qc.includes(id)) return;
+  const v = SV.q[id] || 0; if (v >= q.goal) return;
+  SV.q[id] = Math.min(q.goal, v + n);
+  if (SV.q[id] >= q.goal) { toasts.push({ s: q.n, t: 3 }); snd(880, .2, 'square', .05, 300); }
+}
+const qReady = () => QUESTS.filter(q => (SV.q[q.id] || 0) >= q.goal && !SV.qc.includes(q.id)).length;
 const Z_TOP = ['......HHHHH', '.....HHHHHHH', '.....zrzzrzz', '.....zzzzzzz', '.....zkkkkzz', '......zzzzz', '.....ttttttt', 'zzzzztttttt', '....tttTtttt', 'zzzzzttttttt', '.....ttTtttt', '.....ttttttt', '.....ttttTtt', '.....ppppppp'];
 const Z_A = Z_TOP.concat(['.....ppp.ppp', '.....ppp.ppp', '.....pp..ppp', '.....pp...pp', '.....pp...pp', '....kkk..kkk']);
 const Z_B = Z_TOP.concat(['.....ppp.ppp', '.....pppppp', '......pppp', '......ppp', '......ppp', '.....kkkk']);
@@ -766,7 +795,7 @@ function genForest(c, L) {
 }
 
 /* ============ état du jeu ============ */
-let world, sky, far, mid, L, W, li = 0, state = 'title', stT = 0, time = 0, shake = 0, mapX = 0, carry = null, tap = null, earned = 0;
+let world, sky, far, mid, L, W, li = 0, state = 'title', stT = 0, time = 0, shake = 0, mapX = 0, carry = null, tap = null, earned = 0, room = null, RB = null, lvHit = false, pet = null, shopTab = 'skins', questFrom = 'map';
 let p, zombies, bullets, acids, parts, pops, beam, spawnT, kills = 0, totalKills = 0, camX = 0, boss = null, bossState = 0;
 const input = { x: 0, y: 0, fire: false, jx: 0, jy: 0 };
 
@@ -780,9 +809,16 @@ function loadLevel(i) {
   p = { x: 40, y: 220, vy: 0, dir: 1, hp: 100, st: 'ground', plat: null, lad: null, gun: 'pistol', ammo: 18, melee: 'batte', cd: 0, inv: 0, swing: 0, flash: 0, walk: 0, speedT: 0 };
   if (carry) { p.gun = carry.gun; p.ammo = Math.max(carry.ammo, 12); p.melee = carry.melee; carry = null; }
   earned = 0;
-  zombies = []; bullets = []; acids = []; parts = []; pops = []; beam = null; spawnT = 1.5; kills = 0; camX = 0; boss = null; bossState = 0;
-  L.zmax = Math.min(15, 7 + (i * .5 | 0)); L.rate = Math.max(.8, 1.7 - i * .05); L.types = i < 1 ? 'n' : i < 3 ? 'nnnr' : i < 6 ? 'nnnrra' : 'nnrraa'; L.hpx = 1 + i * .05;
-  [250, 330, 410, 500, 600].forEach(x => spawn(x));
+  zombies = []; bullets = []; acids = []; parts = []; pops = []; beam = null; spawnT = 1.2; kills = 0; camX = 0; boss = null; bossState = 0; room = null; lvHit = false; toasts = [];
+  pet = SV.pet && PETS[SV.pet] ? { k: SV.pet, x: 18, y: 238, dir: 1, cd: 0, ph: 0, atk: 0, egg: 10 } : null;
+  W.secret = null;
+  if (i === 1 || rnd() < .5) for (let k = 0; k < 40; k++) {
+    const sxp = 420 + rnd() * (L.len - 860) | 0;
+    if (W.lads.some(l => Math.abs(l.cx - sxp) < 40) || W.props.some(o => o.base <= 226 && Math.abs(o.x + o.w / 2 - sxp) < 24)) continue;
+    W.secret = { x: sxp, done: SV.secrets.includes(i) }; break;
+  }
+  L.zmax = Math.min(20, 10 + (i * .5 | 0)); L.rate = Math.max(.6, 1.25 - i * .035); L.types = i < 1 ? 'n' : i < 3 ? 'nnnr' : i < 6 ? 'nnnrra' : 'nnrraa'; L.hpx = 1 + i * .05;
+  [230, 290, 350, 410, 470, 540, 610].forEach(x => spawn(x));
 }
 function spawn(x, forceT) {
   const t = forceT || pick(L.types.split('')), T = ZT[t];
@@ -796,11 +832,12 @@ function spawnBoss() {
 }
 function blood(x, y, gy, n, cols = ['#b01c2c', '#e0354b']) { for (let i = 0; i < n; i++) parts.push({ x, y, gy, vx: (Math.random() - .5) * 90, vy: -Math.random() * 110, life: .5 + Math.random() * .4, col: cols[Math.random() < .6 ? 0 : 1] }); }
 function pop(x, y, s, col = '#fff') { pops.push({ x, y, s, col, life: 1.2 }); }
-function hurtZ(z, dmg, dir) {
+function hurtZ(z, dmg, dir, src) {
   z.hp -= dmg; z.hit = .1; if (!z.boss) z.kb = dir * (z.t === 'a' ? 40 : 90);
   blood(z.x, z.y - 12, z.y, dmg < 1 ? 1 : 4); if (dmg >= 1) snd(180, .06, 'square', .04, -80);
   if (z.hp <= 0) {
     blood(z.x, z.y - 10, z.y, z.boss ? 60 : 12); kills++; totalKills++; SV.coins += z.boss ? 25 : 1; earned += z.boss ? 25 : 1; zombies.splice(zombies.indexOf(z), 1);
+    qAdd('k100'); qAdd('k1000'); QUESTS.forEach(q => { if (q.w && q.w === src) qAdd(q.id); }); if (z.boss) qAdd('boss');
     if (z.boss) { boss = null; bossState = 2; shake = 3; snd(60, .8, 'sawtooth', .09, -20); W.picks.push({ x: z.x, y: z.y, type: 'med' }); pop(z.x, z.y - 50, 'BOSS VAINCU !', '#7aff7a'); }
     else { const q = Math.random(); if (q < .16) W.picks.push({ x: z.x, y: z.y, type: 'ammo' }); else if (q < .2) W.picks.push({ x: z.x, y: z.y, type: 'med' }); else if (q < .235) W.picks.push({ x: z.x, y: z.y, type: 'speed' }); }
   }
@@ -808,7 +845,7 @@ function hurtZ(z, dmg, dir) {
 function explode(x, gy, r, dmg) {
   shake = 2.5; snd(80, .35, 'sawtooth', .09, -40);
   for (let i = 0; i < 26; i++) parts.push({ x, y: gy - 10, gy, vx: (Math.random() - .5) * 220, vy: -Math.random() * 160, life: .3 + Math.random() * .4, col: Math.random() < .5 ? '#f39a44' : '#ffe14a' });
-  zombies.slice().forEach(z => { if (Math.abs(z.x - x) < r + (z.boss ? 12 : 0) && Math.abs(z.y - gy) < 20) hurtZ(z, dmg, Math.sign(z.x - x) || 1); });
+  zombies.slice().forEach(z => { if (Math.abs(z.x - x) < r + (z.boss ? 12 : 0) && Math.abs(z.y - gy) < 20) hurtZ(z, dmg, Math.sign(z.x - x) || 1, 'lancegrenades'); });
 }
 function solidFix(e, ox) { for (const s of W.solids) if (e.y > s.y0 && e.x > s.x0 - 5 && e.x < s.x1 + 5) { if (ox <= s.x0 - 5 || ox >= s.x1 + 5) { e.x = ox; return true; } e.y = s.y0; } return false; }
 function setState(s) { state = s; stT = 0; }
@@ -816,10 +853,12 @@ function setState(s) { state = s; stT = 0; }
 /* ============ mise à jour ============ */
 function update(dt) {
   time += dt; stT += dt; shake = Math.max(0, shake - dt * 8);
+  if (toasts.length && state === 'play') { toasts[0].t -= dt; if (toasts[0].t <= 0) toasts.shift(); }
   if (state === 'title' || state === 'confirm') updateTitle(dt);
   if (state !== 'play') return;
   const doorX = L.len - 100;
   p.cd -= dt; p.inv -= dt; p.swing -= dt; p.flash -= dt; p.speedT -= dt; const fast = p.speedT > 0 ? 1.65 : 1; if (beam) { beam.t -= dt; if (beam.t <= 0) beam = null; }
+  if (room) { updateRoom(dt, fast); return; }
   if (p.st === 'ladder') {
     p.y += input.y * 62 * fast * dt; p.x = p.lad.cx; p.walk += Math.abs(input.y) * dt * 8;
     if (p.y <= p.lad.top) { p.y = p.lad.top; p.st = 'plat'; p.plat = p.lad.plat; }
@@ -835,6 +874,8 @@ function update(dt) {
       if (p.st === 'ground' && p.y <= TOP + 2.5 && input.y < -.55) { p.st = 'ladder'; p.lad = lad; p.y = TOP - 1; }
       else if (p.st === 'plat' && input.y > .55 && p.plat === lad.plat) { p.st = 'ladder'; p.lad = lad; p.y += 1; }
     }
+    const S = W.secret;
+    if (S && !S.done && p.st === 'ground' && Math.abs(p.x - S.x) < 9 && p.y < TOP + 9 && input.y > .55) { enterRoom(); return; }
     if (p.st === 'plat' && (p.x < p.plat.x - 2 || p.x > p.plat.x + p.plat.w + 2)) { p.st = 'fall'; p.vy = 0; }
     if (p.st === 'fall') { p.vy += 620 * dt; p.y += p.vy * dt; if (p.y >= TOP + 2) { p.y = TOP + 2; p.st = 'ground'; } }
     if (input.fire && p.cd <= 0) fire();
@@ -843,6 +884,7 @@ function update(dt) {
   const open = L.boss === undefined || bossState === 2;
   if (open && p.x >= doorX - 1 && p.st === 'ground' && p.y < 228) {
     snd(520, .15, 'square', .05, 300);
+    if (!lvHit) { qAdd('nohit'); if (kills === 0) qAdd('ghost'); }
     SV.coins += 10; earned += 10; SV.unlocked = Math.max(SV.unlocked, Math.min(li + 1, LEVELS.length - 1));
     carry = { gun: p.gun, ammo: p.ammo, melee: p.melee }; persist(); setState(li < LEVELS.length - 1 ? 'clear' : 'win');
     return;
@@ -882,12 +924,32 @@ function update(dt) {
     const rx = z.boss ? 8 * z.boss.sc : 9;
     if (reach && Math.abs(z.x - p.x) < rx && Math.abs(z.y - py) < (z.boss ? 10 : 7)) hurtP(z.dmg, z.x);
   });
+  /* animal de compagnie */
+  if (pet) {
+    const P = PETS[pet.k]; pet.cd -= dt; pet.atk -= dt;
+    let tgt = null, bd = 1e9;
+    zombies.forEach(z => { if (Math.abs(z.x - p.x) < 160 && z.x > camX - 10 && z.x < camX + VW + 10) { const dd = Math.abs(z.x - pet.x) + Math.abs(z.y - pet.y); if (dd < bd) { bd = dd; tgt = z; } } });
+    let tx, ty;
+    if (tgt) { tx = tgt.x - Math.sign(tgt.x - pet.x || 1) * (P.range - 4); ty = tgt.y; }
+    else { tx = p.x - p.dir * 18; ty = p.st === 'ground' ? clamp(p.y + 4, TOP, BOT) : TOP + 6; }
+    const dx = tx - pet.x, dy = ty - pet.y;
+    if (Math.abs(dx) > 220) { pet.x = tx - Math.sign(dx) * 30; pet.y = ty; }
+    const spd = P.sp * (tgt ? 1 : Math.abs(dx) > 40 ? 1.2 : .7);
+    if (Math.abs(dx) > 2) { pet.x += Math.sign(dx) * Math.min(Math.abs(dx), spd * dt); pet.ph += dt * 10; }
+    if (Math.abs(dy) > 1.5) pet.y += Math.sign(dy) * Math.min(Math.abs(dy), spd * .6 * dt);
+    pet.y = clamp(pet.y, TOP, BOT);
+    pet.dir = tgt ? (Math.sign(tgt.x - pet.x) || pet.dir) : Math.abs(dx) > 2 ? Math.sign(dx) : pet.dir;
+    if (tgt && pet.cd <= 0 && Math.abs(tgt.x - pet.x) < P.range + (tgt.boss ? 10 : 0) && Math.abs(tgt.y - pet.y) < (tgt.boss ? 12 : 7)) {
+      pet.cd = P.cd; pet.atk = .18; hurtZ(tgt, P.dmg, pet.dir, 'pet'); snd(pet.k === 'poule' ? 900 : 260, .06, 'square', .04, pet.k === 'poule' ? 200 : -100);
+    }
+    if (P.egg && (pet.egg -= dt) <= 0) { pet.egg = P.egg; W.picks.push({ x: pet.x, y: pet.y, type: 'egg' }); pop(pet.x, pet.y - 20, 'OEUF !', '#fff6c8'); }
+  }
   /* tirs */
   bullets.forEach(b => {
     b.x += b.vx * dt; b.life -= dt; if (b.flame) { b.vx *= Math.pow(.05, dt); b.gy += b.vy * dt; }
     if (b.gy > 0) for (const z of zombies.slice()) if (b.pierce > 0 && !b.hitSet.includes(z) && Math.abs(z.x - b.x) < (z.boss ? 8 * z.boss.sc : 7) && Math.abs(z.y - b.gy) < (z.boss ? 13 : 8)) {
       b.hitSet.push(z); b.pierce--;
-      if (b.boom) explode(b.x, b.gy, b.boom, b.dmg); else hurtZ(z, b.dmg, Math.sign(b.vx) || 1);
+      if (b.boom) explode(b.x, b.gy, b.boom, b.dmg); else hurtZ(z, b.dmg, Math.sign(b.vx) || 1, b.src);
     }
     if (b.boom && b.life <= 0 && b.pierce > 0 && b.gy > 0) explode(b.x, b.gy, b.boom, b.dmg);
   });
@@ -900,6 +962,7 @@ function update(dt) {
     k.got = true; snd(660, .12, 'square', .05, 400);
     if (k.type === 'med') { p.hp = Math.min(100, p.hp + 40); pop(k.x, k.y - 26, '+40 VIE', '#7aff7a'); }
     else if (k.type === 'ammo') { p.ammo += Math.ceil(GUNS[p.gun].ammo / 2); pop(k.x, k.y - 26, '+MUNITIONS', '#f2c230'); }
+    else if (k.type === 'egg') { p.hp = Math.min(100, p.hp + 15); pop(k.x, k.y - 26, '+15 VIE', '#7aff7a'); }
     else if (k.type === 'speed') { p.speedT = 10; pop(k.x, k.y - 26, 'VITESSE !', '#6ef0ff'); }
     else if (MELEE[k.type]) { p.melee = k.type; pop(k.x, k.y - 26, MELEE[k.type].n, '#6ef0ff'); }
     else { p.gun = k.type; p.ammo = GUNS[k.type].ammo; pop(k.x, k.y - 26, GUNS[k.type].n, '#f2c230'); }
@@ -908,9 +971,65 @@ function update(dt) {
   parts = parts.filter(q => q.life > 0);
   pops.forEach(q => { q.y -= 14 * dt; q.life -= dt; }); pops = pops.filter(q => q.life > 0);
 }
+function enterRoom() {
+  const S = W.secret; S.done = true;
+  if (!SV.secrets.includes(li)) { SV.secrets.push(li); qAdd('secret'); }
+  room = { coins: [], chest: { x: VW - 56, y: 240, open: false }, t: 0 };
+  for (let i = 0; i < 16; i++) room.coins.push({ x: 92 + (i % 8) * ((VW - 196) / 7), y: 226 + (i / 8 | 0) * 22 + (i % 2) * 6, got: false });
+  buildRoomBg(); p.x = 44; p.y = 238; p.dir = 1; p.st = 'ground'; bullets = []; acids = []; beam = null;
+  persist(); snd(300, .3, 'triangle', .06, -150);
+}
+function exitRoom() { p.x = W.secret.x; p.y = TOP + 16; p.dir = 1; p.inv = 1; room = null; persist(); snd(400, .2, 'triangle', .05, 200); }
+function updateRoom(dt, fast) {
+  room.t += dt;
+  p.x = clamp(p.x + input.x * 72 * fast * dt, 14, VW - 30);
+  if (Math.abs(input.x) > .2) p.dir = Math.sign(input.x);
+  if (Math.abs(input.x) > .2 || Math.abs(input.y) > .2) p.walk += dt * 9;
+  p.y = clamp(p.y + input.y * 50 * fast * dt, TOP + 8, BOT);
+  room.coins.forEach(c => { if (!c.got && Math.abs(c.x - p.x) < 9 && Math.abs(c.y - p.y) < 9) { c.got = true; SV.coins += 5; earned += 5; pop(c.x, c.y - 22, '+5', '#f2c230'); snd(990, .08, 'square', .04, 300); } });
+  const ch = room.chest; if (!ch.open && Math.abs(ch.x - p.x) < 15 && Math.abs(ch.y - p.y) < 11) { ch.open = true; SV.coins += 40; earned += 40; pop(ch.x, ch.y - 36, '+40 TRESOR !', '#f2c230'); snd(660, .3, 'square', .06, 600); }
+  if (p.x <= 16 && input.x < 0) exitRoom();
+  pops.forEach(q => { q.y -= 14 * dt; q.life -= dt; }); pops = pops.filter(q => q.life > 0);
+}
+function buildRoomBg() {
+  if (RB && RB.width === VW) return;
+  RB = mk(VW, H); const g = RB.getContext('2d'), sv = seed; seed = 77;
+  R(g, 0, 0, VW, H, '#1e1824');
+  for (let y = 0, r = 0; y < 206; y += 12, r++) for (let x = -(r % 2) * 14; x < VW; x += 28) { const c = pick(['#3a3040', '#433848', '#362c3c', '#3e3444']); R(g, x + 1, y + 1, 26, 10, c); R(g, x + 1, y + 1, 26, 1, shade(c, 1.25)); R(g, x + 1, y + 10, 26, 1, shade(c, .8)); }
+  for (let i = 0; i < 6; i++) { const x = 60 + rnd() * (VW - 120); R(g, x, 0, 1, 20 + rnd() * 30, 'rgba(200,200,220,.12)'); }
+  R(g, 0, 206, VW, 64, '#4a3426'); R(g, 0, 204, VW, 3, '#15101a');
+  for (let y = 208; y < 270; y += 8) { R(g, 0, y, VW, 1, '#2e2018'); for (let x = (y / 8 % 2) * 30; x < VW; x += 60) R(g, x, y, 1, 8, '#2e2018'); }
+  for (let i = 0; i < 9; i++) { const sy = 206 - (i + 1) * 14, w = 40 - i * 4; R(g, 0, sy, w, 14, i % 2 ? '#5a4a3a' : '#4e4032'); R(g, 0, sy, w, 2, '#6e5c48'); }
+  R(g, 0, 0, 14, 80, '#0a080e'); R(g, 0, 78, 16, 2, '#6e5c48');
+  R(g, 44, 116, 52, 18, '#000'); R(g, 45, 117, 50, 16, '#2a7a3e'); txt(g, 'SORTIE', 76, 122, 1, '#fff', 1, false); R(g, 49, 124, 6, 2, '#fff'); R(g, 50, 122, 1, 6, '#fff'); R(g, 51, 123, 1, 4, '#fff');
+  const cx = VW * .44 | 0; [[cx, 186, 22], [cx + 24, 190, 18], [cx + 8, 166, 18]].forEach(([x, y, w]) => { R(g, x, y, w, 210 - y > 20 ? 20 : 210 - y, '#7a5632'); R(g, x, y, w, 2, '#9a7442'); R(g, x + 2, y + 4, w - 4, 1, '#5a3e22'); R(g, x + w / 2 - 1, y, 2, 20, '#5a3e22'); });
+  [VW * .82 | 0, VW * .82 + 18 | 0].forEach(x => { R(g, x, 180, 16, 26, '#6a4426'); R(g, x, 184, 16, 2, '#3a3a3a'); R(g, x, 198, 16, 2, '#3a3a3a'); R(g, x + 1, 180, 2, 26, '#8a5a32'); });
+  for (let i = 0; i < 12; i++) R(g, VW - 14 + (i % 4), 0 + i * 2, 14 - i, 1, 'rgba(220,220,230,.25)');
+  seed = sv;
+}
+function drawRoom() {
+  ctx.drawImage(RB, 0, 0);
+  [VW * .3 | 0, VW * .68 | 0].forEach((tx, i) => {
+    const f = Math.sin(time * 12 + i * 3); R(ctx, tx - 1, 96, 3, 12, '#5a4028'); R(ctx, tx - 3, 94, 7, 2, '#3a2a1a');
+    R(ctx, tx - 2, 86 + (f > 0 ? 0 : 1), 5, 8, '#f39a44'); R(ctx, tx - 1, 88, 3, 5, '#ffe14a');
+    ctx.globalCompositeOperation = 'lighter'; disc(ctx, tx, 92, 34 + (f * 2 | 0), 'rgba(255,160,60,.06)'); disc(ctx, tx, 92, 18, 'rgba(255,160,60,.08)'); ctx.globalCompositeOperation = 'source-over';
+  });
+  if (room.t < 3) { ctx.globalAlpha = room.t < 2.4 ? 1 : (3 - room.t) / .6; txt(ctx, 'PIECE CACHEE !', VW / 2, 44, 4, '#f2c230', 1); txt(ctx, 'RAMASSE LES PIECES - SORTIE PAR L\'ESCALIER A GAUCHE', VW / 2, 70, 1, '#e9dfd2', 1); ctx.globalAlpha = 1; }
+  const items = [];
+  room.coins.forEach(c => { if (!c.got) items.push([c.y, () => { const w = 1 + (Math.abs(Math.sin(time * 5 + c.x * .1)) * 3 | 0), y = c.y - 12 + Math.sin(time * 3 + c.x) * 1.5; R(ctx, c.x - 3, c.y - 1, 7, 2, 'rgba(0,0,0,.3)'); R(ctx, c.x - w, y, w * 2 + 1, 7, '#b8860f'); R(ctx, c.x - w + 1, y + 1, Math.max(1, w * 2 - 1), 5, '#f2c230'); R(ctx, c.x - w + 1, y + 1, 1, 2, '#fff6c8'); }]); });
+  const ch = room.chest;
+  items.push([ch.y, () => {
+    const x = ch.x, y = ch.y; R(ctx, x - 14, y - 1, 28, 3, 'rgba(0,0,0,.35)'); R(ctx, x - 12, y - 14, 24, 14, '#7a4a22'); R(ctx, x - 12, y - 14, 24, 2, '#9a6432'); R(ctx, x - 12, y - 8, 24, 2, '#c9a23a'); R(ctx, x - 2, y - 10, 4, 5, '#c9a23a');
+    if (ch.open) { R(ctx, x - 12, y - 26, 24, 10, '#6a3e1c'); R(ctx, x - 12, y - 26, 24, 2, '#9a6432'); R(ctx, x - 10, y - 16, 20, 3, '#f2c230'); ctx.globalCompositeOperation = 'lighter'; disc(ctx, x, y - 16, 12, 'rgba(255,220,90,.15)'); ctx.globalCompositeOperation = 'source-over'; }
+    else { R(ctx, x - 13, y - 19, 26, 6, '#8a5428'); R(ctx, x - 13, y - 19, 26, 1, '#aa7438'); if ((time * 2 | 0) % 2) R(ctx, x + 9, y - 21, 2, 2, '#fff'); }
+  }]);
+  items.push([p.y + .1, drawPlayer]);
+  items.sort((a, b) => a[0] - b[0]).forEach(it => it[1]());
+  pops.forEach(q => { ctx.globalAlpha = Math.min(1, q.life * 2); txt(ctx, q.s, q.x, q.y, 1, q.col, 1); ctx.globalAlpha = 1; });
+}
 function hurtP(dmg, fromX) {
   if (p.inv > 0) return;
-  p.hp -= dmg; p.inv = .8; shake = 1.5; blood(p.x, p.y - 12, p.y, 5); snd(90, .15, 'sawtooth', .07, -40);
+  lvHit = true; p.hp -= dmg; p.inv = .8; shake = 1.5; blood(p.x, p.y - 12, p.y, 5); snd(90, .15, 'sawtooth', .07, -40);
   if (p.st === 'ground') p.x = clamp(p.x + Math.sign(p.x - fromX || 1) * 6, 8, L.len - 100);
   if (p.hp <= 0) { p.hp = 0; carry = null; persist(); setState('dead'); }
 }
@@ -920,18 +1039,18 @@ function fire() {
     p.ammo--; p.cd = g.cd; p.flash = .06; if (g.shake) shake = Math.max(shake, g.shake);
     if (g.beam) {
       beam = { x: p.x + p.dir * 14, y: p.y - 12, dir: p.dir, t: .09 }; snd(900, .12, 'sawtooth', .05, -600);
-      if (gy > 0) zombies.slice().forEach(z => { const d = (z.x - p.x) * p.dir; if (d > 0 && d < VW && Math.abs(z.y - gy) < (z.boss ? 13 : 8)) hurtZ(z, g.dmg, p.dir); });
+      if (gy > 0) zombies.slice().forEach(z => { const d = (z.x - p.x) * p.dir; if (d > 0 && d < VW && Math.abs(z.y - gy) < (z.boss ? 13 : 8)) hurtZ(z, g.dmg, p.dir, p.gun); });
     } else if (g.flame) {
-      bullets.push({ x: p.x + p.dir * 14, y: p.y - 12, gy, vx: p.dir * (190 + Math.random() * 50), vy: (Math.random() - .5) * 30, dmg: g.dmg, pierce: 99, life: .34 + Math.random() * .12, hitSet: [], flame: true });
+      bullets.push({ x: p.x + p.dir * 14, y: p.y - 12, gy, vx: p.dir * (190 + Math.random() * 50), vy: (Math.random() - .5) * 30, dmg: g.dmg, pierce: 99, life: .34 + Math.random() * .12, hitSet: [], flame: true, src: p.gun });
       if ((time * 20 | 0) % 3 === 0) snd(160, .06, 'sawtooth', .025, 40);
     } else {
       const n = g.pellets || 1;
-      for (let i = 0; i < n; i++) bullets.push({ x: p.x + p.dir * 12, y: p.y - 12, gy: gy > 0 ? gy + (i - (n - 1) / 2) * 8 : gy, off: (i - (n - 1) / 2) * 3, vx: p.dir * (g.speed || 420), dmg: g.dmg, pierce: g.pierce, life: g.life || (g.boom ? .55 : .9), hitSet: [], boom: g.boom, bolt: g.bolt });
+      for (let i = 0; i < n; i++) bullets.push({ x: p.x + p.dir * 12, y: p.y - 12, gy: gy > 0 ? gy + (i - (n - 1) / 2) * 8 : gy, off: (i - (n - 1) / 2) * 3, vx: p.dir * (g.speed || 420), dmg: g.dmg, pierce: g.pierce, life: g.life || (g.boom ? .55 : .9), hitSet: [], boom: g.boom, bolt: g.bolt, src: p.gun });
       snd(g.pellets || g.boom ? 110 : g.cd < .15 ? 300 : g.bolt ? 500 : 220, g.pellets ? .18 : .08, g.bolt ? 'triangle' : 'sawtooth', .06, -90);
     }
   } else {
     const m = MELEE[p.melee]; p.cd = m.cd; p.swing = Math.max(.12, m.cd * .5); snd(m.cd < .1 ? 90 : 140, .07, m.cd < .1 ? 'sawtooth' : 'triangle', .05, 60);
-    if (p.st === 'ground') zombies.slice().forEach(z => { const d = (z.x - p.x) * p.dir; if (d > -4 && d < m.range + (z.boss ? 10 : 0) && Math.abs(z.y - p.y) < (z.boss ? 13 : 9)) hurtZ(z, m.dmg, p.dir); });
+    if (p.st === 'ground') zombies.slice().forEach(z => { const d = (z.x - p.x) * p.dir; if (d > -4 && d < m.range + (z.boss ? 10 : 0) && Math.abs(z.y - p.y) < (z.boss ? 13 : 9)) hurtZ(z, m.dmg, p.dir, 'melee'); });
   }
 }
 
@@ -942,6 +1061,7 @@ function drawPickup(k) {
   ctx.globalCompositeOperation = 'lighter'; disc(ctx, x, y, 10, 'rgba(120,255,140,.10)'); disc(ctx, x, y, 6, 'rgba(120,255,140,.13)'); ctx.globalCompositeOperation = 'source-over';
   if (t === 'med') { R(ctx, x - 6, y - 4, 13, 10, '#f6f0e4'); R(ctx, x - 6, y + 5, 13, 1, '#b9b0a4'); R(ctx, x - 1, y - 2, 3, 6, '#e0354b'); R(ctx, x - 3, y, 7, 2, '#e0354b'); R(ctx, x - 2, y - 6, 5, 2, '#b9b0a4'); }
   else if (t === 'ammo') { R(ctx, x - 6, y - 3, 12, 8, '#4a5a34'); R(ctx, x - 6, y - 3, 12, 1, '#6a7e4a'); R(ctx, x - 4, y, 2, 4, '#f2c230'); R(ctx, x - 1, y, 2, 4, '#f2c230'); R(ctx, x + 2, y, 2, 4, '#f2c230'); }
+  else if (t === 'egg') { R(ctx, x - 2, y - 4, 5, 9, '#fff6e8'); R(ctx, x - 3, y - 2, 7, 6, '#fff6e8'); R(ctx, x - 1, y - 3, 1, 2, '#fff'); R(ctx, x - 3, y + 3, 7, 1, '#d8ccb8'); }
   else if (t === 'speed') { [[1, -6, 4], [-1, -3, 4], [-3, 0, 8], [0, 2, 4], [-2, 5, 3]].forEach(([dx, dy, w]) => R(ctx, x + dx, y + dy, w, 3, '#6ef0ff')); R(ctx, x + 1, y - 6, 2, 3, '#fff'); R(ctx, x - 3, y, 3, 2, '#fff'); }
   else if (MELEE[t]) { const m = MELEE[t]; for (let i = 0; i < 12; i++) R(ctx, x - 6 + i, y + 5 - i, 2, 2, i < 3 ? '#5a4028' : m.col); R(ctx, x + 4, y - 7, 3, 3, m.tip); if (t === 'hache') R(ctx, x + 1, y - 8, 6, 5, m.tip); }
   else { const g = GUNS[t], l = g.len + 3; R(ctx, x - (l >> 1), y - 1, l, 2, g.col); R(ctx, x - (l >> 1), y - 1, l, 1, shade(g.col, 1.3)); R(ctx, x + (l >> 1) - 3, y + 1, 3, 3, '#5a4028'); if (g.len > 8) R(ctx, x - 1, y + 1, 2, 3, shade(g.col, .6)); }
@@ -959,6 +1079,30 @@ function drawPlayer() {
     const g = GUNS[p.gun]; HR(6, 7, g.len, 2, g.col); HR(6, 7, g.len, 1, shade(g.col, 1.3)); HR(6, 9, 1, 2, '#3a2a1e'); if (g.len > 8) HR(9, 9, 2, 2, shade(g.col, .6));
     if (p.flash > 0 && !g.flame && !g.beam) { HR(6 + g.len, 6, 3, 3, '#f2c230'); HR(7 + g.len, 7, 4, 1, '#fff'); }
   } else { const m = MELEE[p.melee]; if (p.swing > 0) { HR(6, 8, m.range - 10, 2, m.col); HR(m.range - 6, 7, 3, 4, m.tip); } else { HR(6, -1, 2, 10, m.col); HR(5, -3, 4, 4, m.tip); } }
+}
+function drawPet(k, x, y, dir, ph, atk) {
+  x = Math.round(x); y = Math.round(y);
+  const P = (dx, dy, w, h, col) => R(ctx, dir > 0 ? x + dx : x - dx - w, y + dy, w, h, col), f = (ph | 0) % 2, a = atk > 0 ? 2 : 0;
+  R(ctx, x - 7, y - 1, 15, 2, 'rgba(0,0,0,.3)');
+  if (k === 'chien') {
+    const t = '#b8864a', t2 = '#8a5a2a', b = '#2a2018';
+    P(-6, -5, 2, 5 - f, t2); P(-3, -5, 2, 4 + f, t2); P(3, -5, 2, 5 - f, t2); P(6, -5, 2, 4 + f, t2);
+    P(-7, -10, 15, 5, t); P(-6, -10, 10, 3, b); P(-7, -6, 15, 1, t2);
+    P(-10, -13 + f, 3, 2, t); P(-9, -11, 2, 2, t);
+    P(6 + a, -14, 5, 5, t); P(10 + a, -12, 3, 3, t); P(12 + a, -12, 1, 1, b); P(7 + a, -16, 2, 3, b); P(9 + a, -16, 1, 2, b); P(9 + a, -13, 1, 1, '#000');
+    if (a) P(10 + a, -9, 3, 1, '#b01c2c');
+  } else if (k === 'poule') {
+    const w = '#f4f0e4', w2 = '#c8c0b0', o = '#e0a020';
+    P(-1, -3, 1, 3, o); P(2, -3, 1, 3 - f, o); P(-2, -1, 2, 1, o); P(2, -1, 2, 1, o);
+    P(-4, -9, 9, 6, w); P(-5, -10, 3, 4, w); P(-6, -12, 2, 3, w2); P(-2, -8, 4, 2, w2); P(-3, -4, 7, 1, w2);
+    const hy = a ? -10 : -13; P(3, hy, 4, 5, w); P(4, hy - 2, 2, 2, '#e0354b'); P(7, hy + 2, 2, 1, o); P(5, hy + 1, 1, 1, '#000'); P(4, hy + 4, 1, 2, '#e0354b');
+  } else {
+    const bk = '#2a2228', wh = '#f4f0e4', sk = '#d8a8a0';
+    if (a) { P(-2, -13, 2, 13, sk); P(2, -13, 2, 6, sk); P(3, -8, 9, 2, sk); P(11, -9, 2, 3, sk); } else { P(-2, -13, 2, 13 - f * 2, sk); P(2, -13, 2, 11 + f * 2, sk); P(2, -1, 4, 1, sk); }
+    P(-3, -1, 4, 1, sk);
+    P(-8, -21, 15, 9, bk); P(-7, -22, 12, 1, bk); P(-11, -21, 4, 6, wh); P(-3, -19, 7, 3, '#3a3238');
+    P(4, -32, 2, 11, sk); P(4, -35, 5, 3, sk); P(9, -34, 3, 1, '#c88a6a'); P(7, -35, 1, 1, '#000');
+  }
 }
 function drawZombie(z) {
   const sc = z.boss ? z.boss.sc : 1, f = (z.ph | 0) % 2;
@@ -980,6 +1124,7 @@ function hud() {
   const bw = 110, bx = (VW - bw) >> 1; R(ctx, bx - 1, 13, bw + 2, 4, '#000'); R(ctx, bx, 14, bw, 2, '#55526a');
   const px = bx + bw * clamp(p.x / (L.len - 100), 0, 1); R(ctx, bx, 14, px - bx, 2, '#f2c230'); R(ctx, px - 1, 11, 3, 8, '#e0354b');
   R(ctx, bx + bw + 2, 10, 9, 9, '#6a7e72'); R(ctx, bx + bw + 5, 13, 3, 6, '#15131c'); R(ctx, bx + bw + 2, 10, 9, 2, '#f2c230');
+  if (toasts.length) { const t = toasts[0], w = Math.max(200, t.s.length * 4 + 24), x0 = (VW - w) >> 1; R(ctx, x0, 46, w, 26, '#000'); R(ctx, x0 + 2, 48, w - 4, 22, '#1f4a2e'); txt(ctx, 'QUETE TERMINEE !', VW / 2, 51, 1, '#7aff7a', 1); txt(ctx, t.s, VW / 2, 61, 1, '#fff', 1); }
   if (boss) { const w = 180, x0 = (VW - w) >> 1; txt(ctx, boss.boss.n, VW / 2, 26, 1, '#ff5a5a', 1); R(ctx, x0 - 1, 34, w + 2, 6, '#000'); R(ctx, x0, 35, w, 4, '#3a1420'); R(ctx, x0, 35, w * boss.hp / boss.max, 4, '#ff3b3b'); }
   if (bossState === 1 && stT < 2.5) { if ((time * 6 | 0) % 2) txt(ctx, 'BOSS', VW / 2, 80, 6, '#ff3b3b', 1); txt(ctx, boss ? boss.boss.n : '', VW / 2, 120, 3, '#fff', 1); }
   else if (bossState === 0 && stT < 3) {
@@ -1010,6 +1155,7 @@ function overlay(a) { ctx.fillStyle = `rgba(8,5,18,${a})`; ctx.fillRect(0, 0, VW
 function render() {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   if (state === 'title' || state === 'confirm') { drawTitle(); return; }
+  if (room && (state === 'play' || state === 'pause')) { drawRoom(); if (state === 'play') { hud(); controls(); } else drawPause(); return; }
   if (shake > 0) ctx.translate((Math.random() - .5) * shake * 3 | 0, (Math.random() - .5) * shake * 3 | 0);
   ctx.drawImage(sky, 0, 0); tile(far, .12); tile(mid, .4);
   const cx = Math.round(camX);
@@ -1022,9 +1168,20 @@ function render() {
   /* tri en profondeur */
   const items = [];
   const vis = x => x > cx - 90 && x < cx + VW + 30;
+  const Sx = W.secret;
+  if (Sx && vis(Sx.x)) {
+    if (Sx.done) { R(ctx, Sx.x - 8, 213, 16, 7, '#15131c'); R(ctx, Sx.x - 8, 207, 2, 6, '#3e3a4c'); }
+    else {
+      const c1 = L.natural ? '#6a4a2a' : '#5a5668', c2 = L.natural ? '#4a3420' : '#3e3a4c';
+      R(ctx, Sx.x - 8, 213, 16, 7, c2); R(ctx, Sx.x - 7, 213, 7, 6, c1); R(ctx, Sx.x + 1, 213, 6, 6, c1); R(ctx, Sx.x - 2, 215, 1, 2, '#c9c2d4'); R(ctx, Sx.x + 2, 215, 1, 2, '#c9c2d4');
+      if (time * 1.2 % 3 < .3) { R(ctx, Sx.x + 6, 210, 1, 5, '#fff'); R(ctx, Sx.x + 4, 212, 5, 1, '#fff'); }
+      if (p.st === 'ground' && Math.abs(Sx.x - p.x) < 40 && (time * 3 | 0) % 2) { R(ctx, Sx.x - 1, 196, 3, 4, '#f2c230'); R(ctx, Sx.x - 3, 200, 7, 1, '#f2c230'); R(ctx, Sx.x - 2, 201, 5, 1, '#f2c230'); R(ctx, Sx.x - 1, 202, 3, 1, '#f2c230'); }
+    }
+  }
   W.props.forEach(o => { if (vis(o.x)) items.push([o.base, () => ctx.drawImage(o.img, o.x, o.top)]); });
   W.picks.forEach(k => { if (!k.got && vis(k.x)) items.push([k.y - .5, () => drawPickup(k)]); });
   zombies.forEach(z => { if (vis(z.x)) items.push([z.y, () => drawZombie(z)]); });
+  if (pet && vis(pet.x)) items.push([pet.y, () => drawPet(pet.k, pet.x, pet.y, pet.dir, pet.ph, pet.atk)]);
   items.push([p.st === 'ground' ? p.y + .1 : 0, drawPlayer]);
   items.sort((a, b) => a[0] - b[0]).forEach(it => it[1]());
   bullets.forEach(b => {
@@ -1043,17 +1200,19 @@ function render() {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   const blink = (time * 2 | 0) % 2;
   if (state === 'play') { hud(); controls(); }
-  else if (state === 'pause') { hud(); overlay(.6); txt(ctx, 'PAUSE', VW / 2, 70, 6, '#fff', 1); button(VW / 2 - 150, 150, 140, 36, '#2a6a3a', 'REPRENDRE'); button(VW / 2 + 10, 150, 140, 36, '#3a5a9a', 'CARTE'); }
+  else if (state === 'pause') drawPause();
+  else if (state === 'quests') drawQuests();
   else if (state === 'map') drawMap();
   else if (state === 'shop') drawShop();
   else if (state === 'clear' || state === 'win') {
     overlay(.6); txt(ctx, state === 'win' ? 'LE MONDE EST SAUVE' : 'NIVEAU TERMINE', VW / 2, 66, 5, '#7aff7a', 1); txt(ctx, 'ZOMBIES TUES : ' + kills, VW / 2, 116, 2, '#fff', 1);
-    txt(ctx, '+' + earned + ' PIECES', VW / 2, 136, 2, '#f2c230', 1); if (blink && stT > .4) txt(ctx, 'TOUCHE POUR VOIR LA CARTE', VW / 2, 190, 2, '#f2c230', 1);
+    txt(ctx, '+' + earned + ' PIECES', VW / 2, 136, 2, '#f2c230', 1); if (qReady()) txt(ctx, 'QUETES A RECUPERER !', VW / 2, 158, 2, '#7aff7a', 1); if (blink && stT > .4) txt(ctx, 'TOUCHE POUR VOIR LA CARTE', VW / 2, 190, 2, '#f2c230', 1);
   } else if (state === 'dead') {
     overlay(.7); txt(ctx, 'TU ES MORT', VW / 2, 66, 6, '#e0354b', 1); txt(ctx, 'ZOMBIES TUES : ' + kills + '   +' + earned + ' PIECES', VW / 2, 116, 2, '#fff', 1);
     button(VW / 2 - 150, 150, 140, 36, '#7a1c24', 'REESSAYER'); button(VW / 2 + 10, 150, 140, 36, '#3a5a9a', 'CARTE');
   }
 }
+function drawPause() { hud(); overlay(.6); txt(ctx, 'PAUSE', VW / 2, 70, 6, '#fff', 1); button(VW / 2 - 150, 150, 140, 36, '#2a6a3a', 'REPRENDRE'); button(VW / 2 + 10, 150, 140, 36, '#3a5a9a', 'CARTE'); }
 function coin(x, y) { disc(ctx, x, y, 3, '#b8860f'); disc(ctx, x, y, 2, '#f2c230'); R(ctx, x - 1, y - 1, 1, 1, '#fff6c8'); }
 function button(x, y, w, h, col, label) { R(ctx, x, y, w, h, '#000'); R(ctx, x + 2, y + 2, w - 4, h - 4, col); R(ctx, x + 2, y + 2, w - 4, 2, shade(col, 1.4)); txt(ctx, label, x + w / 2, y + (h >> 1) - 5, 2, '#fff', 1); }
 /* ---------- écran d'accueil ---------- */
@@ -1062,8 +1221,9 @@ function titleLayout() { const bw = clamp(Math.round(VW * .34), 136, 196), bx = 
 function titleButtons() {
   const { bw, bx } = titleLayout(), list = [];
   if (SV.unlocked > 0) list.push({ id: 'cont', col: '#2a7a3e', label: 'CONTINUER', sub: 'NIVEAU ' + (SV.unlocked + 1) + ' - ' + LEVELS[SV.unlocked].name });
-  list.push({ id: 'new', col: '#a8322a', label: 'NOUVELLE PARTIE' }, { id: 'shop', col: '#3a5a9a', label: 'BOUTIQUE', sub: SV.coins + ' PIECES' });
-  list.forEach((b, i) => { b.x = bx; b.w = bw; b.h = 36; b.y = (list.length === 3 ? 70 : 92) + i * 42; });
+  const qr = qReady();
+  list.push({ id: 'new', col: '#a8322a', label: 'NOUVELLE PARTIE' }, { id: 'quests', col: '#8a5a1a', label: 'QUETES', sub: qr ? qr + ' A RECUPERER !' : SV.qc.length + '/' + QUESTS.length + ' TERMINEES', badge: qr }, { id: 'shop', col: '#3a5a9a', label: 'BOUTIQUE', sub: SV.coins + ' PIECES' });
+  list.forEach((b, i) => { b.x = bx; b.w = bw; b.h = 32; b.y = (list.length === 4 ? 67 : 86) + i * 37; });
   return list;
 }
 function buildTitle() {
@@ -1115,10 +1275,11 @@ function drawTitle() {
   titleButtons().forEach((b, i) => {
     const pulse = i === 0 && (t * 2 | 0) % 2;
     R(ctx, b.x - pulse, b.y - pulse, b.w + pulse * 2, b.h + pulse * 2, pulse ? '#fff' : '#000'); R(ctx, b.x + 2, b.y + 2, b.w - 4, b.h - 4, b.col); R(ctx, b.x + 2, b.y + 2, b.w - 4, 2, shade(b.col, 1.4)); R(ctx, b.x + 2, b.y + b.h - 5, b.w - 4, 3, shade(b.col, .7));
-    txt(ctx, b.label, b.x + b.w / 2, b.y + (b.sub ? 7 : 13), 2, '#fff', 1); if (b.sub) txt(ctx, b.sub, b.x + b.w / 2, b.y + 23, 1, shade(b.col, 2.4), 1);
+    txt(ctx, b.label, b.x + b.w / 2, b.y + (b.sub ? 5 : 11), 2, '#fff', 1); if (b.sub) txt(ctx, b.sub, b.x + b.w / 2, b.y + 21, 1, shade(b.col, 2.4), 1);
+    if (b.badge) { disc(ctx, b.x + b.w - 4, b.y + 4, 6, '#000'); disc(ctx, b.x + b.w - 4, b.y + 4, 5, '#e0354b'); txt(ctx, b.badge, b.x + b.w - 3, b.y + 2, 1, '#fff', 1, false); }
   });
   if (state === 'confirm') {
-    overlay(.78); txt(ctx, 'RECOMMENCER A ZERO ?', VW / 2, 64, 3, '#fff', 1); txt(ctx, 'LES NIVEAUX SERONT VERROUILLES A NOUVEAU', VW / 2, 98, 1, '#e9dfd2', 1); txt(ctx, 'TES PIECES ET TES SKINS SONT CONSERVES', VW / 2, 110, 1, '#7aff7a', 1);
+    overlay(.78); txt(ctx, 'RECOMMENCER A ZERO ?', VW / 2, 64, 3, '#fff', 1); txt(ctx, 'LES NIVEAUX SERONT VERROUILLES A NOUVEAU', VW / 2, 98, 1, '#e9dfd2', 1); txt(ctx, 'TES PIECES, SKINS, ANIMAUX ET QUETES SONT CONSERVES', VW / 2, 110, 1, '#7aff7a', 1);
     button(VW / 2 - 150, 150, 140, 36, '#a8322a', 'OUI'); button(VW / 2 + 10, 150, 140, 36, '#3a5a9a', 'NON');
   }
 }
@@ -1139,22 +1300,46 @@ function drawMap() {
     txt(ctx, lv.name, x, y + r + 6, 1, lock ? '#6a6a80' : '#fff', 1); if (bs) txt(ctx, 'BOSS', x, y + r + 14, 1, lock ? '#7a4a4a' : '#ff5a5a', 1);
     if (cur) blit(heroS[(time * 4 | 0) % 2], x, y - r - 24, false, 7);
   });
-  txt(ctx, 'TOUCHE UN NIVEAU POUR JOUER - GLISSE POUR FAIRE DEFILER', VW / 2 + 30, H - 16, 1, '#a596b8', 1);
+  if (VW >= 520) txt(ctx, 'TOUCHE UN NIVEAU POUR JOUER - GLISSE POUR FAIRE DEFILER', VW / 2, H - 16, 1, '#a596b8', 1);
+  button(VW - 112, H - 34, 96, 24, '#8a5a1a', 'QUETES'); const qr = qReady(); if (qr) { disc(ctx, VW - 18, H - 32, 6, '#000'); disc(ctx, VW - 18, H - 32, 5, '#e0354b'); txt(ctx, qr, VW - 17, H - 34, 1, '#fff', 1, false); }
   button(16, H - 34, 64, 24, '#5a4a7a', 'MENU');
 }
 /* ---------- boutique ---------- */
-function shopCards() { const cw = Math.min(96, ((VW - 32) / 5 | 0) - 6), x0 = (VW - (cw * 5 + 24)) >> 1; return SKINS.map((k, i) => ({ x: x0 + (i % 5) * (cw + 6), y: 42 + (i / 5 | 0) * 112, w: cw, h: 106 })); }
+function shopCards() { const cw = Math.min(96, ((VW - 32) / 5 | 0) - 6), x0 = (VW - (cw * 5 + 24)) >> 1; return SKINS.map((k, i) => ({ x: x0 + (i % 5) * (cw + 6), y: 62 + (i / 5 | 0) * 102, w: cw, h: 98 })); }
+function petCards() { const cw = Math.min(110, ((VW - 32) / 4 | 0) - 6), x0 = (VW - (cw * 4 + 18)) >> 1; return PET_IDS.map((k, i) => ({ x: x0 + i * (cw + 6), y: 62, w: cw, h: 150 })); }
+function cardFrame(c, sel) { R(ctx, c.x, c.y, c.w, c.h, sel ? '#7aff7a' : '#000'); R(ctx, c.x + 2, c.y + 2, c.w - 4, c.h - 4, sel ? '#1f3a2a' : '#1d1533'); }
+function priceTag(cx, y, price) { const ok = SV.coins >= price; coin(cx - String(price).length * 4 - 5, y + 5); txt(ctx, price, cx + 3, y, 2, ok ? '#f2c230' : '#8a6a6a', 1); txt(ctx, ok ? 'ACHETER' : 'PAS ASSEZ', cx, y + 16, 1, ok ? '#7aff7a' : '#8a6a6a', 1); }
 function drawShop() {
   overlay(.86); txt(ctx, 'BOUTIQUE', VW / 2, 12, 3, '#f08a3c', 1); button(16, 8, 76, 26, '#3a5a9a', 'RETOUR');
   txt(ctx, SV.coins, VW - 18, 15, 2, '#f2c230', 2); coin(VW - 26 - String(SV.coins).length * 8, 20);
-  shopCards().forEach((c, i) => {
+  [['skins', 'SKINS', -100], ['pets', 'ANIMAUX', 4]].forEach(([id, l, o]) => { const on = shopTab === id; R(ctx, VW / 2 + o, 38, 96, 18, on ? '#f08a3c' : '#000'); R(ctx, VW / 2 + o + 2, 40, 92, 14, on ? '#5a2a1a' : '#2a2238'); txt(ctx, l, VW / 2 + o + 48, 43, 1, on ? '#fff' : '#a596b8', 1); });
+  if (shopTab === 'skins') shopCards().forEach((c, i) => {
     const k = SKINS[i], own = SV.owned.includes(i), sel = SV.skin === i, cx = c.x + (c.w >> 1);
-    R(ctx, c.x, c.y, c.w, c.h, sel ? '#7aff7a' : '#000'); R(ctx, c.x + 2, c.y + 2, c.w - 4, c.h - 4, sel ? '#1f3a2a' : '#1d1533');
-    blit(skinSpr(i)[sel ? (time * 4 | 0) % 2 : 0], cx, c.y + 10, false, 7, 2);
-    txt(ctx, k.n, cx, c.y + 58, 1, '#fff', 1);
-    if (sel) txt(ctx, 'EQUIPE', cx, c.y + 74, 2, '#7aff7a', 1);
-    else if (own) txt(ctx, 'CHOISIR', cx, c.y + 74, 1, '#e9dfd2', 1);
-    else { const ok = SV.coins >= k.price; coin(cx - String(k.price).length * 4 - 5, c.y + 79); txt(ctx, k.price, cx + 3, c.y + 74, 2, ok ? '#f2c230' : '#8a6a6a', 1); txt(ctx, ok ? 'ACHETER' : 'PAS ASSEZ DE PIECES', cx, c.y + 92, 1, ok ? '#7aff7a' : '#8a6a6a', 1); }
+    cardFrame(c, sel); blit(skinSpr(i)[sel ? (time * 4 | 0) % 2 : 0], cx, c.y + 8, false, 7, 2);
+    txt(ctx, k.n, cx, c.y + 52, 1, '#fff', 1);
+    if (sel) txt(ctx, 'EQUIPE', cx, c.y + 68, 2, '#7aff7a', 1); else if (own) txt(ctx, 'CHOISIR', cx, c.y + 70, 1, '#e9dfd2', 1); else priceTag(cx, c.y + 64, k.price);
+  });
+  else petCards().forEach((c, i) => {
+    const id = PET_IDS[i], P = PETS[id], own = !id || SV.pets.includes(id), sel = SV.pet === id, cx = c.x + (c.w >> 1);
+    cardFrame(c, sel);
+    if (id) { ctx.save(); ctx.translate(cx, c.y + 82); ctx.scale(2, 2); drawPet(id, 0, 0, 1, sel ? time * 6 : 0, 0); ctx.restore(); }
+    else txt(ctx, 'X', cx, c.y + 34, 6, '#4a3a5a', 1);
+    txt(ctx, id ? P.n : 'SANS ANIMAL', cx, c.y + 92, 1, '#fff', 1); if (id) txt(ctx, P.d, cx, c.y + 102, 1, '#a596b8', 1);
+    if (sel) txt(ctx, 'EQUIPE', cx, c.y + 120, 2, '#7aff7a', 1); else if (own) txt(ctx, 'CHOISIR', cx, c.y + 122, 1, '#e9dfd2', 1); else priceTag(cx, c.y + 116, P.price);
+  });
+  if (shopTab === 'pets') txt(ctx, 'TON ANIMAL TE SUIT ET ATTAQUE LES ZOMBIES PROCHES', VW / 2, 226, 1, '#a596b8', 1);
+}
+function drawQuests() {
+  overlay(.88); txt(ctx, 'QUETES', VW / 2, 12, 3, '#f08a3c', 1); button(16, 8, 76, 26, '#3a5a9a', 'RETOUR');
+  txt(ctx, SV.coins, VW - 18, 15, 2, '#f2c230', 2); coin(VW - 26 - String(SV.coins).length * 8, 20);
+  QUESTS.forEach((q, i) => {
+    const y = 42 + i * 22, v = Math.min(q.goal, SV.q[q.id] || 0), done = v >= q.goal, got = SV.qc.includes(q.id), x0 = 16, x1 = VW - 16, bw = Math.min(160, VW * .3 | 0);
+    R(ctx, x0, y, x1 - x0, 20, got ? '#16141e' : done ? '#1f3a2a' : '#1d1533');
+    txt(ctx, q.n, x0 + 6, y + 3, 1, got ? '#5a5a70' : '#fff');
+    R(ctx, x0 + 6, y + 12, bw, 4, '#000'); R(ctx, x0 + 6, y + 12, bw * v / q.goal, 4, got ? '#4a4a60' : done ? '#7aff7a' : '#f2c230'); txt(ctx, v + '/' + q.goal, x0 + 12 + bw, y + 11, 1, '#a596b8');
+    if (got) txt(ctx, 'RECUPERE', x1 - 8, y + 7, 1, '#5a5a70', 2);
+    else if (done) { R(ctx, x1 - 98, y + 2, 94, 16, '#000'); R(ctx, x1 - 97, y + 3, 92, 14, (time * 3 | 0) % 2 ? '#2a8a44' : '#34a050'); txt(ctx, 'RECUPERER +' + q.r, x1 - 51, y + 7, 1, '#fff', 1); }
+    else { txt(ctx, '+' + q.r, x1 - 8, y + 7, 1, '#f2c230', 2); coin(x1 - 14 - String(q.r).length * 4, y + 9); }
   });
 }
 
@@ -1193,7 +1378,7 @@ function click(gx, gy) {
   if (state === 'title') {
     const b = titleButtons().find(k => gx >= k.x && gx <= k.x + k.w && gy >= k.y && gy <= k.y + k.h); if (!b) return;
     snd(520, .1, 'square', .05, 200);
-    if (b.id === 'shop') { shopFrom = 'title'; setState('shop'); } else if (b.id === 'new' && SV.unlocked > 0) setState('confirm'); else openMap();
+    if (b.id === 'shop') { shopFrom = 'title'; setState('shop'); } else if (b.id === 'quests') { questFrom = 'title'; setState('quests'); } else if (b.id === 'new' && SV.unlocked > 0) setState('confirm'); else openMap();
   }
   else if (state === 'confirm') { if (inBtn && left) { SV.unlocked = 0; carry = null; persist(); loadLevel(0); openMap(); } else if (inBtn) setState('title'); }
   else if (state === 'clear' || state === 'win') openMap();
@@ -1202,13 +1387,27 @@ function click(gx, gy) {
   else if (state === 'map') {
     if (gx > VW - 116 && gy < 38) { shopFrom = 'map'; setState('shop'); return; }
     if (gx < 84 && gy > H - 38) { setState('title'); return; }
+    if (gx > VW - 116 && gy > H - 38) { questFrom = 'map'; setState('quests'); return; }
     for (let i = 0; i <= SV.unlocked; i++) if (Math.hypot(gx + mapX - bxW(i), gy - byW(i)) < 20) { snd(520, .1, 'square', .05, 200); startLevel(i); return; }
   } else if (state === 'shop') {
     if (gx < 96 && gy < 38) { if (shopFrom === 'title') setState('title'); else openMap(); return; }
-    shopCards().forEach((c, i) => {
-      if (gx < c.x || gx > c.x + c.w || gy < c.y || gy > c.y + c.h) return;
-      if (!SV.owned.includes(i)) { if (SV.coins < SKINS[i].price) { snd(120, .15, 'sawtooth', .05, -40); return; } SV.coins -= SKINS[i].price; SV.owned.push(i); }
-      SV.skin = i; heroS = skinSpr(i); persist(); snd(660, .12, 'square', .05, 400);
+    if (gy >= 36 && gy <= 58 && Math.abs(gx - VW / 2) < 100) { shopTab = gx < VW / 2 ? 'skins' : 'pets'; snd(520, .06, 'square', .04, 100); return; }
+    const hit = c => gx >= c.x && gx <= c.x + c.w && gy >= c.y && gy <= c.y + c.h, fail = () => snd(120, .15, 'sawtooth', .05, -40), ok = () => { persist(); snd(660, .12, 'square', .05, 400); };
+    if (shopTab === 'skins') shopCards().forEach((c, i) => {
+      if (!hit(c)) return;
+      if (!SV.owned.includes(i)) { if (SV.coins < SKINS[i].price) return fail(); SV.coins -= SKINS[i].price; SV.owned.push(i); }
+      SV.skin = i; heroS = skinSpr(i); ok();
+    });
+    else petCards().forEach((c, i) => {
+      if (!hit(c)) return; const id = PET_IDS[i];
+      if (id && !SV.pets.includes(id)) { if (SV.coins < PETS[id].price) return fail(); SV.coins -= PETS[id].price; SV.pets.push(id); }
+      SV.pet = id; ok();
+    });
+  } else if (state === 'quests') {
+    if (gx < 96 && gy < 38) { if (questFrom === 'title') setState('title'); else openMap(); return; }
+    QUESTS.forEach((q, i) => {
+      const y = 42 + i * 22; if (gy < y || gy > y + 20) return;
+      if ((SV.q[q.id] || 0) >= q.goal && !SV.qc.includes(q.id)) { SV.qc.push(q.id); SV.coins += q.r; persist(); snd(990, .25, 'square', .06, 500); }
     });
   }
 }
@@ -1237,10 +1436,11 @@ wrap.addEventListener('touchend', e => each(e, up), { passive: false });
 wrap.addEventListener('touchcancel', e => each(e, up), { passive: false });
 wrap.addEventListener('mousedown', e => down('m', e)); addEventListener('mousemove', e => move('m', e)); addEventListener('mouseup', () => up('m'));
 wrap.addEventListener('contextmenu', e => e.preventDefault());
-addEventListener('keydown', e => { keys[e.code] = true; if ((e.code === 'Space' || e.code === 'Enter') && state !== 'play' && stT > .35) { initAudio(); if (state === 'map' || state === 'dead') startLevel(state === 'map' ? SV.unlocked : li); else if (state === 'pause') state = 'play'; else if (state === 'confirm') setState('title'); else if (state === 'shop' && shopFrom === 'title') setState('title'); else openMap(); } if (e.code.startsWith('Arrow') || e.code === 'Space') e.preventDefault(); });
+addEventListener('keydown', e => { keys[e.code] = true; if ((e.code === 'Space' || e.code === 'Enter') && state !== 'play' && stT > .35) { initAudio(); if (state === 'map' || state === 'dead') startLevel(state === 'map' ? SV.unlocked : li); else if (state === 'pause') state = 'play'; else if (state === 'confirm') setState('title'); else if (state === 'shop' && shopFrom === 'title') setState('title'); else if (state === 'quests' && questFrom === 'title') setState('title'); else openMap(); } if (e.code.startsWith('Arrow') || e.code === 'Space') e.preventDefault(); });
 addEventListener('keyup', e => { keys[e.code] = false; });
 addEventListener('resize', resize); addEventListener('orientationchange', () => setTimeout(resize, 200));
 addEventListener('blur', () => { up(joy.id); fireId = null; });
+document.addEventListener('visibilitychange', () => { if (document.hidden) persist(); });
 function readInput() {
   const kx = (keys.ArrowRight || keys.KeyD ? 1 : 0) - (keys.ArrowLeft || keys.KeyA || keys.KeyQ ? 1 : 0), ky = (keys.ArrowDown || keys.KeyS ? 1 : 0) - (keys.ArrowUp || keys.KeyW || keys.KeyZ ? 1 : 0);
   input.x = kx || (Math.abs(input.jx) > .25 ? input.jx : 0); input.y = ky || (Math.abs(input.jy) > .25 ? input.jy : 0); input.fire = fireId !== null || !!keys.Space;
@@ -1251,5 +1451,5 @@ resize(); loadLevel(Math.min(SV.unlocked, LEVELS.length - 1));
 let lastT = 0;
 function loop(ms) { const dt = Math.min(.05, (ms - lastT) / 1000 || 0); lastT = ms; readInput(); update(dt); render(); requestAnimationFrame(loop); }
 requestAnimationFrame(loop);
-window.ZT = { goto: i => { loadLevel(i); setState('play'); }, SV, get mapX() { return mapX; }, get p() { return p; }, get L() { return L; }, get W() { return W; }, get state() { return state; }, get boss() { return boss; }, get z() { return zombies; }, n: LEVELS.length };
+window.ZT = { goto: i => { loadLevel(i); setState('play'); }, SV, get mapX() { return mapX; }, get p() { return p; }, get L() { return L; }, get W() { return W; }, get state() { return state; }, get room() { return room; }, get pet() { return pet; }, enterRoom, qAdd, get boss() { return boss; }, get z() { return zombies; }, n: LEVELS.length };
 })();
