@@ -43,7 +43,26 @@ const HERO_TOP = ['....hhhhhh', '...hhhhhhhh', '...hhhsssss', '...hhsskssk', '..
 const HERO_A = HERO_TOP.concat(['...ppp.ppp', '...ppp.ppp', '...ppp.ppp', '...ppp..ppp', '...ppp..ppp', '..kkkk..kkkk']);
 const HERO_B = HERO_TOP.concat(['...ppp.ppp', '...pppppp', '....pppp', '....pppp', '....pppp', '...kkkkk']);
 const HP = { h: '#2a1a22', s: '#e8b088', k: '#15131c', j: '#c2362f', d: '#7a1c24', b: '#3a2a1e', p: '#34508a' };
-const heroS = [sprite(HERO_A, HP), sprite(HERO_B, HP)];
+const SKINS = [
+  { n: 'SURVIVANT', price: 0, pal: HP },
+  { n: 'POLICIER', price: 60, pal: { h: '#1c2a4a', s: '#e8b088', k: '#15131c', j: '#2a4a8a', d: '#1c3466', b: '#15131c', p: '#1c2a4a' } },
+  { n: 'MILITAIRE', price: 100, pal: { h: '#3a4a2a', s: '#c89a70', k: '#15131c', j: '#5a6a3a', d: '#3e4a28', b: '#3a2a1e', p: '#4a5630' } },
+  { n: 'DOCTEUR', price: 140, pal: { h: '#6a4a2a', s: '#f0c0a0', k: '#15131c', j: '#f0f0ea', d: '#c8c8c0', b: '#8a8a84', p: '#3a8a8a' } },
+  { n: 'PUNK', price: 180, pal: { h: '#3fe06a', s: '#e8b088', k: '#15131c', j: '#22202c', d: '#e0457b', b: '#c9c2d4', p: '#3a2a4a' } },
+  { n: 'NINJA', price: 240, pal: { h: '#15131c', s: '#e8b088', k: '#15131c', j: '#22222e', d: '#b01c2c', b: '#b01c2c', p: '#1a1a24' } },
+  { n: 'COSMONAUTE', price: 320, pal: { h: '#e8ecf4', s: '#8ad0f0', k: '#5a6070', j: '#e8ecf4', d: '#f08a3c', b: '#f08a3c', p: '#c8ccd8' } },
+  { n: 'ROBOT', price: 420, pal: { h: '#6a7280', s: '#aab2c0', k: '#ff3b3b', j: '#7a8494', d: '#4a5260', b: '#f2c230', p: '#5a6270' } },
+  { n: 'ZOMBIE', price: 520, pal: { h: '#3a4a2a', s: '#7fae5a', k: '#1c2a18', j: '#6a4a7a', d: '#7a1c24', b: '#3a2a1e', p: '#3a3340' } },
+  { n: 'OR MASSIF', price: 800, pal: { h: '#f2c230', s: '#ffe07a', k: '#8a6410', j: '#f2c230', d: '#b8860f', b: '#b8860f', p: '#d9a441' } },
+];
+const skinCache = [];
+const skinSpr = i => skinCache[i] || (skinCache[i] = [sprite(HERO_A, SKINS[i].pal), sprite(HERO_B, SKINS[i].pal)]);
+/* sauvegarde : progression, pièces, skins */
+const SV = { unlocked: 0, coins: 0, owned: [0], skin: 0 };
+try { const o = JSON.parse(localStorage.getItem('zt_save') || 'null'); if (o) Object.assign(SV, o); else SV.unlocked = clamp(+localStorage.getItem('zt_level') || 0, 0, 14); } catch (e) { /* stockage indisponible */ }
+if (!SKINS[SV.skin]) SV.skin = 0;
+const persist = () => { try { localStorage.setItem('zt_save', JSON.stringify(SV)); } catch (e) { /* stockage indisponible */ } };
+let heroS = skinSpr(SV.skin);
 const Z_TOP = ['......HHHHH', '.....HHHHHHH', '.....zrzzrzz', '.....zzzzzzz', '.....zkkkkzz', '......zzzzz', '.....ttttttt', 'zzzzztttttt', '....tttTtttt', 'zzzzzttttttt', '.....ttTtttt', '.....ttttttt', '.....ttttTtt', '.....ppppppp'];
 const Z_A = Z_TOP.concat(['.....ppp.ppp', '.....ppp.ppp', '.....pp..ppp', '.....pp...pp', '.....pp...pp', '....kkk..kkk']);
 const Z_B = Z_TOP.concat(['.....ppp.ppp', '.....pppppp', '......pppp', '......ppp', '......ppp', '.....kkkk']);
@@ -550,22 +569,20 @@ function stoneWallFlat(c, S, x, y, w, h) {
 }
 
 /* ============ état du jeu ============ */
-let world, sky, far, mid, L, W, li = 0, state = 'title', stT = 0, time = 0, shake = 0, saved = 0;
+let world, sky, far, mid, L, W, li = 0, state = 'title', stT = 0, time = 0, shake = 0, mapX = 0, carry = null, tap = null, earned = 0;
 let p, zombies, bullets, acids, parts, pops, beam, spawnT, kills = 0, totalKills = 0, camX = 0, boss = null, bossState = 0;
 const input = { x: 0, y: 0, fire: false, jx: 0, jy: 0 };
-try { saved = clamp(+localStorage.getItem('zt_level') || 0, 0, LEVELS.length - 1); } catch (e) { saved = 0; }
-const save = i => { saved = i; try { localStorage.setItem('zt_level', String(i)); } catch (e) { /* stockage indisponible */ } };
 
-function loadLevel(i, keep) {
+function loadLevel(i) {
   li = i; L = LEVELS[i]; seed = L.seed;
   W = { plats: [], lads: [], picks: [], props: [], solids: [] };
   sky = skyCanvas(L); far = farLayer(L); mid = midLayer(L);
   world = mk(L.len, H); const c = world.getContext('2d');
   (L.kind === 'city' ? genCity : L.kind === 'base' ? genBase : genRuins)(c, L);
   furniture(c, L);
-  const old = p;
   p = { x: 40, y: 220, vy: 0, dir: 1, hp: 100, st: 'ground', plat: null, lad: null, gun: 'pistol', ammo: 18, melee: 'batte', cd: 0, inv: 0, swing: 0, flash: 0, walk: 0 };
-  if (keep && old) { p.gun = old.gun; p.ammo = Math.max(old.ammo, 12); p.melee = old.melee; p.hp = Math.min(100, old.hp + 30); }
+  if (carry) { p.gun = carry.gun; p.ammo = Math.max(carry.ammo, 12); p.melee = carry.melee; carry = null; }
+  earned = 0;
   zombies = []; bullets = []; acids = []; parts = []; pops = []; beam = null; spawnT = 1.5; kills = 0; camX = 0; boss = null; bossState = 0;
   L.zmax = Math.min(12, 5 + (i * .5 | 0)); L.rate = Math.max(1.2, 2.5 - i * .09); L.types = i < 1 ? 'n' : i < 3 ? 'nnnr' : i < 6 ? 'nnnrra' : 'nnrraa'; L.hpx = 1 + i * .07;
   [300, 420, 560].forEach(x => spawn(x));
@@ -586,7 +603,7 @@ function hurtZ(z, dmg, dir) {
   z.hp -= dmg; z.hit = .1; if (!z.boss) z.kb = dir * (z.t === 'a' ? 40 : 90);
   blood(z.x, z.y - 12, z.y, dmg < 1 ? 1 : 4); if (dmg >= 1) snd(180, .06, 'square', .04, -80);
   if (z.hp <= 0) {
-    blood(z.x, z.y - 10, z.y, z.boss ? 60 : 12); kills++; totalKills++; zombies.splice(zombies.indexOf(z), 1);
+    blood(z.x, z.y - 10, z.y, z.boss ? 60 : 12); kills++; totalKills++; SV.coins += z.boss ? 25 : 1; earned += z.boss ? 25 : 1; zombies.splice(zombies.indexOf(z), 1);
     if (z.boss) { boss = null; bossState = 2; shake = 3; snd(60, .8, 'sawtooth', .09, -20); W.picks.push({ x: z.x, y: z.y, type: 'med' }); pop(z.x, z.y - 50, 'BOSS VAINCU !', '#7aff7a'); }
     else { const q = Math.random(); if (q < .16) W.picks.push({ x: z.x, y: z.y, type: 'ammo' }); else if (q < .2) W.picks.push({ x: z.x, y: z.y, type: 'med' }); }
   }
@@ -628,7 +645,8 @@ function update(dt) {
   const open = L.boss === undefined || bossState === 2;
   if (open && p.x >= doorX - 1 && p.st === 'ground' && p.y < 228) {
     snd(520, .15, 'square', .05, 300);
-    if (li < LEVELS.length - 1) { save(li + 1); setState('clear'); } else { save(0); setState('win'); }
+    SV.coins += 10; earned += 10; SV.unlocked = Math.max(SV.unlocked, Math.min(li + 1, LEVELS.length - 1));
+    carry = { gun: p.gun, ammo: p.ammo, melee: p.melee }; persist(); setState(li < LEVELS.length - 1 ? 'clear' : 'win');
     return;
   }
   camX += (clamp(p.x - VW * .4 + p.dir * 20, 0, L.len - VW) - camX) * Math.min(1, dt * 5);
@@ -695,7 +713,7 @@ function hurtP(dmg, fromX) {
   if (p.inv > 0) return;
   p.hp -= dmg; p.inv = .8; shake = 1.5; blood(p.x, p.y - 12, p.y, 5); snd(90, .15, 'sawtooth', .07, -40);
   if (p.st === 'ground') p.x = clamp(p.x + Math.sign(p.x - fromX || 1) * 6, 8, L.len - 100);
-  if (p.hp <= 0) { p.hp = 0; setState('dead'); }
+  if (p.hp <= 0) { p.hp = 0; carry = null; persist(); setState('dead'); }
 }
 function fire() {
   const g = GUNS[p.gun], gy = p.st === 'ground' ? p.y : -99;
@@ -755,6 +773,8 @@ function hud() {
   txt(ctx, p.ammo > 0 ? GUNS[p.gun].n + ' ' + p.ammo : MELEE[p.melee].n, m, 24, 1, '#f2c230');
   if (p.ammo > 0) txt(ctx, MELEE[p.melee].n, m, 33, 1, '#8a94a8');
   txt(ctx, (li + 1) + '/' + LEVELS.length + ' ' + L.name, VW - m, 12, 1, '#fff', 2); txt(ctx, 'ZOMBIES ' + kills, VW - m, 24, 1, '#fff', 2);
+  txt(ctx, SV.coins, VW - m, 34, 1, '#f2c230', 2); coin(VW - m - String(SV.coins).length * 4 - 5, 36);
+  R(ctx, VW / 2 + 76, 9, 13, 11, 'rgba(0,0,0,.5)'); R(ctx, VW / 2 + 79, 11, 2, 7, '#fff'); R(ctx, VW / 2 + 84, 11, 2, 7, '#fff');
   const bw = 110, bx = (VW - bw) >> 1; R(ctx, bx - 1, 13, bw + 2, 4, '#000'); R(ctx, bx, 14, bw, 2, '#55526a');
   const px = bx + bw * clamp(p.x / (L.len - 100), 0, 1); R(ctx, bx, 14, px - bx, 2, '#f2c230'); R(ctx, px - 1, 11, 3, 8, '#e0354b');
   R(ctx, bx + bw + 2, 10, 9, 9, '#6a7e72'); R(ctx, bx + bw + 5, 13, 3, 6, '#15131c'); R(ctx, bx + bw + 2, 10, 9, 2, '#f2c230');
@@ -819,23 +839,57 @@ function render() {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   const blink = (time * 2 | 0) % 2;
   if (state === 'play') { hud(); controls(); }
+  else if (state === 'pause') { hud(); overlay(.6); txt(ctx, 'PAUSE', VW / 2, 70, 6, '#fff', 1); button(VW / 2 - 150, 150, 140, 36, '#2a6a3a', 'REPRENDRE'); button(VW / 2 + 10, 150, 140, 36, '#3a5a9a', 'CARTE'); }
   else if (state === 'title') {
-    overlay(.62); txt(ctx, 'ZOMBIETOWN', VW / 2 + 2, 42, 7, '#5a1d58', 1, false); txt(ctx, 'ZOMBIETOWN', VW / 2, 40, 7, '#f08a3c', 1);
-    txt(ctx, '15 NIVEAUX AUTOUR DU MONDE - UN BOSS TOUS LES 5 NIVEAUX', VW / 2, 92, 1, '#fff', 1);
-    txt(ctx, 'JOYSTICK : SE DEPLACER SUR LE TROTTOIR ET LA ROUTE', VW / 2, 112, 1, '#e9dfd2', 1); txt(ctx, 'POUSSE VERS LE HAUT AU PIED D\'UNE ECHELLE JAUNE POUR MONTER', VW / 2, 122, 1, '#e9dfd2', 1); txt(ctx, 'BOUTON ROUGE : TIRER - FRAPPER QUAND IL N\'Y A PLUS DE MUNITIONS', VW / 2, 132, 1, '#e9dfd2', 1);
-    if (saved > 0) {
-      R(ctx, VW / 2 - 150, 160, 140, 40, '#000'); R(ctx, VW / 2 - 148, 162, 136, 36, '#2a6a3a'); txt(ctx, 'CONTINUER', VW / 2 - 80, 168, 2, '#fff', 1); txt(ctx, 'NIVEAU ' + (saved + 1) + ' - ' + LEVELS[saved].name, VW / 2 - 80, 185, 1, '#c8ffd0', 1);
-      R(ctx, VW / 2 + 10, 160, 140, 40, '#000'); R(ctx, VW / 2 + 12, 162, 136, 36, '#7a1c24'); txt(ctx, 'NOUVELLE PARTIE', VW / 2 + 80, 170, 2, '#fff', 1); txt(ctx, 'NIVEAU 1', VW / 2 + 80, 185, 1, '#ffc8c8', 1);
-    } else if (blink) txt(ctx, 'TOUCHE L\'ECRAN POUR JOUER', VW / 2, 176, 2, '#f2c230', 1);
-  } else if (state === 'clear') {
-    const N = LEVELS[li + 1];
-    overlay(.6); txt(ctx, 'NIVEAU TERMINE', VW / 2, 70, 5, '#7aff7a', 1); txt(ctx, 'ZOMBIES TUES : ' + kills, VW / 2, 120, 2, '#fff', 1);
-    txt(ctx, 'PROCHAIN : ' + N.name + ' - ' + N.sub + (N.boss !== undefined ? ' - BOSS' : ''), VW / 2, 142, 2, N.boss !== undefined ? '#ff5a5a' : '#f08a3c', 1); if (blink && stT > .6) txt(ctx, 'TOUCHE POUR CONTINUER', VW / 2, 190, 2, '#f2c230', 1);
+    overlay(.62); txt(ctx, 'ZOMBIETOWN', VW / 2 + 2, 52, 7, '#5a1d58', 1, false); txt(ctx, 'ZOMBIETOWN', VW / 2, 50, 7, '#f08a3c', 1);
+    txt(ctx, '15 NIVEAUX AUTOUR DU MONDE - UN BOSS TOUS LES 5 NIVEAUX', VW / 2, 104, 1, '#fff', 1);
+    txt(ctx, 'JOYSTICK : SE DEPLACER SUR LE TROTTOIR ET LA ROUTE', VW / 2, 124, 1, '#e9dfd2', 1); txt(ctx, 'POUSSE VERS LE HAUT AU PIED D\'UNE ECHELLE JAUNE POUR MONTER', VW / 2, 134, 1, '#e9dfd2', 1); txt(ctx, 'BOUTON ROUGE : TIRER - FRAPPER QUAND IL N\'Y A PLUS DE MUNITIONS', VW / 2, 144, 1, '#e9dfd2', 1);
+    if (blink) txt(ctx, 'TOUCHE L\'ECRAN', VW / 2, 190, 2, '#f2c230', 1);
+  } else if (state === 'map') drawMap();
+  else if (state === 'shop') drawShop();
+  else if (state === 'clear' || state === 'win') {
+    overlay(.6); txt(ctx, state === 'win' ? 'LE MONDE EST SAUVE' : 'NIVEAU TERMINE', VW / 2, 66, 5, '#7aff7a', 1); txt(ctx, 'ZOMBIES TUES : ' + kills, VW / 2, 116, 2, '#fff', 1);
+    txt(ctx, '+' + earned + ' PIECES', VW / 2, 136, 2, '#f2c230', 1); if (blink && stT > .4) txt(ctx, 'TOUCHE POUR VOIR LA CARTE', VW / 2, 190, 2, '#f2c230', 1);
   } else if (state === 'dead') {
-    overlay(.7); txt(ctx, 'TU ES MORT', VW / 2, 80, 6, '#e0354b', 1); txt(ctx, 'ZOMBIES TUES : ' + kills, VW / 2, 130, 2, '#fff', 1); if (blink && stT > .6) txt(ctx, 'TOUCHE POUR RECOMMENCER LE NIVEAU', VW / 2, 180, 2, '#f2c230', 1);
-  } else if (state === 'win') {
-    overlay(.6); txt(ctx, 'LE MONDE EST SAUVE', VW / 2, 70, 5, '#7aff7a', 1); txt(ctx, 'TOTAL ZOMBIES TUES : ' + totalKills, VW / 2, 126, 2, '#fff', 1); if (blink && stT > .6) txt(ctx, 'TOUCHE POUR REJOUER', VW / 2, 180, 2, '#f2c230', 1);
+    overlay(.7); txt(ctx, 'TU ES MORT', VW / 2, 66, 6, '#e0354b', 1); txt(ctx, 'ZOMBIES TUES : ' + kills + '   +' + earned + ' PIECES', VW / 2, 116, 2, '#fff', 1);
+    button(VW / 2 - 150, 150, 140, 36, '#7a1c24', 'REESSAYER'); button(VW / 2 + 10, 150, 140, 36, '#3a5a9a', 'CARTE');
   }
+}
+function coin(x, y) { disc(ctx, x, y, 3, '#b8860f'); disc(ctx, x, y, 2, '#f2c230'); R(ctx, x - 1, y - 1, 1, 1, '#fff6c8'); }
+function button(x, y, w, h, col, label) { R(ctx, x, y, w, h, '#000'); R(ctx, x + 2, y + 2, w - 4, h - 4, col); R(ctx, x + 2, y + 2, w - 4, 2, shade(col, 1.4)); txt(ctx, label, x + w / 2, y + (h >> 1) - 5, 2, '#fff', 1); }
+/* ---------- carte des niveaux ---------- */
+const MAPW = 140 + (LEVELS.length - 1) * 62, bxW = i => 70 + i * 62, byW = i => 146 + Math.round(Math.sin(i * 1.1) * 30);
+function drawMap() {
+  overlay(.8); const ox = -Math.round(mapX);
+  txt(ctx, 'CARTE DU MONDE', VW / 2, 12, 3, '#f08a3c', 1); coin(20, 20); txt(ctx, SV.coins, 28, 15, 2, '#f2c230');
+  button(VW - 112, 8, 96, 26, '#3a5a9a', 'BOUTIQUE');
+  for (let i = 0; i < LEVELS.length - 1; i++) for (let t = 1; t < 9; t++) { const k = t / 9; R(ctx, ox + bxW(i) + 62 * k - 1, byW(i) + (byW(i + 1) - byW(i)) * k - 1, 3, 3, i < SV.unlocked ? '#f2c230' : '#4a4860'); }
+  LEVELS.forEach((lv, i) => {
+    const x = ox + bxW(i), y = byW(i); if (x < -40 || x > VW + 40) return;
+    const bs = lv.boss !== undefined, r = bs ? 16 : 13, done = i < SV.unlocked, cur = i === SV.unlocked, lock = i > SV.unlocked;
+    const col = lock ? '#3a3a4a' : bs ? '#b01c2c' : done ? '#2f8a4a' : '#f08a3c';
+    disc(ctx, x, y, r + 2 + (cur ? (time * 3 | 0) % 2 : 0), cur ? '#fff' : '#000'); disc(ctx, x, y, r, col); disc(ctx, x - (r / 3 | 0), y - (r / 3 | 0), r / 3 | 0, shade(col, 1.35));
+    if (lock) { R(ctx, x - 4, y - 1, 9, 7, '#8a8aa0'); R(ctx, x - 3, y - 6, 7, 1, '#8a8aa0'); R(ctx, x - 3, y - 5, 1, 4, '#8a8aa0'); R(ctx, x + 3, y - 5, 1, 4, '#8a8aa0'); R(ctx, x, y + 1, 1, 3, '#3a3a4a'); }
+    else txt(ctx, i + 1, x + 1, y - 4, 2, '#fff', 1);
+    txt(ctx, lv.name, x, y + r + 6, 1, lock ? '#6a6a80' : '#fff', 1); if (bs) txt(ctx, 'BOSS', x, y + r + 14, 1, lock ? '#7a4a4a' : '#ff5a5a', 1);
+    if (cur) blit(heroS[(time * 4 | 0) % 2], x, y - r - 24, false, 7);
+  });
+  txt(ctx, 'TOUCHE UN NIVEAU POUR JOUER - GLISSE POUR FAIRE DEFILER', VW / 2, H - 16, 1, '#a596b8', 1);
+}
+/* ---------- boutique ---------- */
+function shopCards() { const cw = Math.min(96, ((VW - 32) / 5 | 0) - 6), x0 = (VW - (cw * 5 + 24)) >> 1; return SKINS.map((k, i) => ({ x: x0 + (i % 5) * (cw + 6), y: 42 + (i / 5 | 0) * 112, w: cw, h: 106 })); }
+function drawShop() {
+  overlay(.86); txt(ctx, 'BOUTIQUE', VW / 2, 12, 3, '#f08a3c', 1); button(16, 8, 76, 26, '#3a5a9a', 'RETOUR');
+  txt(ctx, SV.coins, VW - 18, 15, 2, '#f2c230', 2); coin(VW - 26 - String(SV.coins).length * 8, 20);
+  shopCards().forEach((c, i) => {
+    const k = SKINS[i], own = SV.owned.includes(i), sel = SV.skin === i, cx = c.x + (c.w >> 1);
+    R(ctx, c.x, c.y, c.w, c.h, sel ? '#7aff7a' : '#000'); R(ctx, c.x + 2, c.y + 2, c.w - 4, c.h - 4, sel ? '#1f3a2a' : '#1d1533');
+    blit(skinSpr(i)[sel ? (time * 4 | 0) % 2 : 0], cx, c.y + 10, false, 7, 2);
+    txt(ctx, k.n, cx, c.y + 58, 1, '#fff', 1);
+    if (sel) txt(ctx, 'EQUIPE', cx, c.y + 74, 2, '#7aff7a', 1);
+    else if (own) txt(ctx, 'CHOISIR', cx, c.y + 74, 1, '#e9dfd2', 1);
+    else { const ok = SV.coins >= k.price; coin(cx - String(k.price).length * 4 - 5, c.y + 79); txt(ctx, k.price, cx + 3, c.y + 74, 2, ok ? '#f2c230' : '#8a6a6a', 1); txt(ctx, ok ? 'ACHETER' : 'PAS ASSEZ DE PIECES', cx, c.y + 92, 1, ok ? '#7aff7a' : '#8a6a6a', 1); }
+  });
 }
 
 /* ============ son ============ */
@@ -860,29 +914,49 @@ function resize() {
   sx = VW / LW; sy = H / LH; cssW = vw; ctx.imageSmoothingEnabled = false;
 }
 function toGame(t) { const r = wrap.getBoundingClientRect(), cx = t.clientX - r.left, cy = t.clientY - r.top; return rot ? [cy * sx, (cssW - cx) * sy] : [cx * sx, cy * sy]; }
-function advance(gx) {
+function initAudio() {
   if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ac = null; } }
   if (ac && ac.state === 'suspended') ac.resume();
-  if (state === 'play' || stT < .6) return false;
-  if (state === 'title') { const start = saved > 0 && gx < VW / 2 ? saved : 0; if (start !== li) loadLevel(start, false); if (!start) save(0); totalKills = 0; setState('play'); }
-  else if (state === 'clear') { loadLevel(li + 1, true); setState('play'); }
-  else if (state === 'dead') { loadLevel(li, false); setState('play'); }
-  else if (state === 'win') { totalKills = 0; loadLevel(0, false); setState('play'); }
-  return true;
+}
+function openMap() { mapX = clamp(bxW(SV.unlocked) - VW / 2, 0, Math.max(0, MAPW - VW)); setState('map'); }
+function startLevel(i) { loadLevel(i); setState('play'); }
+function click(gx, gy) {
+  initAudio();
+  if (stT < .35) return;
+  const left = gx < VW / 2, inBtn = gy > 144 && gy < 192;
+  if (state === 'title' || state === 'clear' || state === 'win') openMap();
+  else if (state === 'pause') { if (inBtn && left) state = 'play'; else if (inBtn) { carry = null; persist(); openMap(); } }
+  else if (state === 'dead') { if (inBtn && left) startLevel(li); else if (inBtn) openMap(); }
+  else if (state === 'map') {
+    if (gx > VW - 116 && gy < 38) { setState('shop'); return; }
+    for (let i = 0; i <= SV.unlocked; i++) if (Math.hypot(gx + mapX - bxW(i), gy - byW(i)) < 20) { snd(520, .1, 'square', .05, 200); startLevel(i); return; }
+  } else if (state === 'shop') {
+    if (gx < 96 && gy < 38) { openMap(); return; }
+    shopCards().forEach((c, i) => {
+      if (gx < c.x || gx > c.x + c.w || gy < c.y || gy > c.y + c.h) return;
+      if (!SV.owned.includes(i)) { if (SV.coins < SKINS[i].price) { snd(120, .15, 'sawtooth', .05, -40); return; } SV.coins -= SKINS[i].price; SV.owned.push(i); }
+      SV.skin = i; heroS = skinSpr(i); persist(); snd(660, .12, 'square', .05, 400);
+    });
+  }
 }
 function down(id, t) {
   const [gx, gy] = toGame(t);
-  if (advance(gx)) return;
-  if (state !== 'play') return;
+  if (state !== 'play') { tap = { id, x: gx, y: gy, lx: gx, drag: false }; return; }
+  initAudio();
+  if (gy < 26 && gx > VW / 2 + 68 && gx < VW / 2 + 98) { const keep = stT; setState('pause'); stT = keep; up(joy.id); fireId = null; return; }
   if (gx < VW / 2) { if (joy.id === null) { joy.id = id; joy.ox = clamp(gx, 40, VW / 2 - 20); joy.oy = clamp(gy, 60, H - 40); input.jx = input.jy = 0; } }
   else if (fireId === null) fireId = id;
 }
 function move(id, t) {
+  if (tap && id === tap.id) { const g = toGame(t); if (Math.abs(g[0] - tap.x) > 6) tap.drag = true; if (state === 'map') mapX = clamp(mapX - (g[0] - tap.lx), 0, Math.max(0, MAPW - VW)); tap.lx = g[0]; return; }
   if (id !== joy.id) return;
   const [gx, gy] = toGame(t); let dx = (gx - joy.ox) / 24, dy = (gy - joy.oy) / 24; const m = Math.hypot(dx, dy); if (m > 1) { dx /= m; dy /= m; }
   input.jx = dx; input.jy = dy;
 }
-function up(id) { if (id === joy.id) { joy.id = null; input.jx = input.jy = 0; } if (id === fireId) fireId = null; }
+function up(id) {
+  if (tap && id === tap.id) { const k = tap; tap = null; if (!k.drag) click(k.x, k.y); return; }
+  if (id === joy.id) { joy.id = null; input.jx = input.jy = 0; } if (id === fireId) fireId = null;
+}
 const each = (e, f) => { e.preventDefault(); for (const t of e.changedTouches) f(t.identifier, t); };
 wrap.addEventListener('touchstart', e => each(e, down), { passive: false });
 wrap.addEventListener('touchmove', e => each(e, move), { passive: false });
@@ -890,7 +964,7 @@ wrap.addEventListener('touchend', e => each(e, up), { passive: false });
 wrap.addEventListener('touchcancel', e => each(e, up), { passive: false });
 wrap.addEventListener('mousedown', e => down('m', e)); addEventListener('mousemove', e => move('m', e)); addEventListener('mouseup', () => up('m'));
 wrap.addEventListener('contextmenu', e => e.preventDefault());
-addEventListener('keydown', e => { keys[e.code] = true; if (e.code === 'Space' || e.code === 'Enter') advance(0); if (e.code.startsWith('Arrow') || e.code === 'Space') e.preventDefault(); });
+addEventListener('keydown', e => { keys[e.code] = true; if ((e.code === 'Space' || e.code === 'Enter') && state !== 'play' && stT > .35) { initAudio(); if (state === 'map' || state === 'dead') startLevel(state === 'map' ? SV.unlocked : li); else if (state === 'pause') state = 'play'; else openMap(); } if (e.code.startsWith('Arrow') || e.code === 'Space') e.preventDefault(); });
 addEventListener('keyup', e => { keys[e.code] = false; });
 addEventListener('resize', resize); addEventListener('orientationchange', () => setTimeout(resize, 200));
 addEventListener('blur', () => { up(joy.id); fireId = null; });
@@ -900,9 +974,9 @@ function readInput() {
 }
 
 /* ============ boucle ============ */
-resize(); loadLevel(0, false);
+resize(); loadLevel(Math.min(SV.unlocked, LEVELS.length - 1));
 let lastT = 0;
 function loop(ms) { const dt = Math.min(.05, (ms - lastT) / 1000 || 0); lastT = ms; readInput(); update(dt); render(); requestAnimationFrame(loop); }
 requestAnimationFrame(loop);
-window.ZT = { goto: i => { loadLevel(i, false); setState('play'); }, get p() { return p; }, get L() { return L; }, get W() { return W; }, get state() { return state; }, get boss() { return boss; }, get z() { return zombies; }, n: LEVELS.length };
+window.ZT = { goto: i => { loadLevel(i); setState('play'); }, SV, get mapX() { return mapX; }, get p() { return p; }, get L() { return L; }, get W() { return W; }, get state() { return state; }, get boss() { return boss; }, get z() { return zombies; }, n: LEVELS.length };
 })();
