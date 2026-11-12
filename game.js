@@ -79,11 +79,12 @@ const ZPALS = {
   runner: zpal('#c8d86a', '#c8d86a', '#b01c2c', '#7a1c24', '#3a3340', '#fff06a'),
   armor: zpal(G, '#8d95a4', '#2e3440', '#4a5260', '#22262e'),
 };
-const ZT = { n: { hp: 3, sp: [14, 22], dmg: 10 }, r: { hp: 2, sp: [44, 54], dmg: 8 }, a: { hp: 8, sp: [10, 14], dmg: 16 } };
+const ZT = { n: { hp: 3, sp: [20, 30], dmg: 10 }, r: { hp: 2, sp: [46, 58], dmg: 8 }, a: { hp: 8, sp: [14, 18], dmg: 16 } };
 const BOSSES = [
-  { n: 'LE BOUCHER', hp: 110, sc: 2, sp: 22, dmg: 20, charge: true, pal: zpal('#8fae6a', '#e9e9e0', '#e9e9e0', '#b01c2c', '#3a3340') },
-  { n: 'LE CRACHEUR', hp: 170, sc: 2, sp: 16, dmg: 18, spit: true, summon: true, pal: zpal('#a8d84a', '#a8d84a', '#6a8a2a', '#4a6a1a', '#3a4a2a', '#fff06a') },
-  { n: 'PATIENT ZERO', hp: 260, sc: 3, sp: 24, dmg: 25, charge: true, spit: true, summon: true, pal: zpal('#c8d0e0', '#c8d0e0', '#3a3a5a', '#7a1c24', '#22223a', '#6ef0ff') },
+  { n: 'LE BOUCHER', hp: 80, sc: 2, sp: 20, dmg: 14, charge: true, pal: zpal('#8fae6a', '#e9e9e0', '#e9e9e0', '#b01c2c', '#3a3340') },
+  { n: 'LE CRACHEUR', hp: 120, sc: 2, sp: 16, dmg: 12, spit: true, summon: true, pal: zpal('#a8d84a', '#a8d84a', '#6a8a2a', '#4a6a1a', '#3a4a2a', '#fff06a') },
+  { n: 'LE COMTE', hp: 150, sc: 2, sp: 24, dmg: 14, charge: true, summon: true, pal: zpal('#d8d0e0', '#15131c', '#2a1030', '#b01c2c', '#15131c') },
+  { n: 'PATIENT ZERO', hp: 190, sc: 3, sp: 22, dmg: 18, charge: true, spit: true, summon: true, pal: zpal('#c8d0e0', '#c8d0e0', '#3a3a5a', '#7a1c24', '#22223a', '#6ef0ff') },
 ];
 const GUNS = {
   pistol: { n: 'PISTOLET', cd: .3, dmg: 2, pierce: 1, ammo: 18, len: 4, col: '#9aa2b4' },
@@ -135,7 +136,7 @@ const LEVELS = [
   { name: 'ZONE 51', sub: 'PLEIN JOUR', kind: 'base', len: 2800, seed: 51, sky: SK.day, stars: 0, sun: { x: 300, y: 36, r: 11, c1: '#fff6c8', c2: '#ffffff', halo: true }, clouds: true,
     far: { t: 'hills', c: ['#b0a0c0', '#c9a88e'] }, mid: { t: 'mesa' }, metal: '#7d8478', signs: ['DANGER', 'ZONE 51'], glow: PALE, side: '#a89e88', road: '#3a3833', dash: '#d9b030', saucer: true, zp: 'base',
     picks: ['laser', 'med', 'shotgun', 'ammo'] },
-  { name: 'PARIS', sub: 'AUBE', kind: 'city', len: 2600, seed: 75, sky: SK.dawn, stars: 20, sun: { x: 420, y: 150, r: 16, c1: '#ffe0b0', c2: '#fff4dc' },
+  { name: 'PARIS', sub: 'AUBE', kind: 'paris', len: 2600, seed: 75, sky: SK.dawn, stars: 20, sun: { x: 420, y: 150, r: 16, c1: '#ffe0b0', c2: '#fff4dc' },
     far: { t: 'sky', c: ['#8a6a9a', '#6a5080'], win: ['#ffe0a0', '#ffe0a0'], lo: 110, hi: 150, mark: 'eiffel' }, mid: { t: 'city', c: '#9a7a98', lo: 96, hi: 128, lit: .1, win: ['#ffe0a0'] },
     bricks: ['#d8c8a8', '#c8b898', '#e0d0b4'], mansard: true, tops: [44, 64], lit: .15, win: '#ffe0a0', glass: '#3a4a6a', glow: PALE, side: '#8a8690', road: '#3a3840', shops: ['CAFE', 'BISTRO', 'TABAC', 'PAIN'], zp: 'city',
     picks: ['magnum', 'med', 'arbalete', 'ammo'] },
@@ -169,7 +170,7 @@ const LEVELS = [
     picks: ['uzi', 'med', 'lancegrenades', 'ammo'] },
   { name: 'AMAZONIE', sub: 'JOUR', kind: 'ruins', len: 2900, seed: 33, weather: 'rain', sky: SK.jungle, stars: 0, sun: { x: 200, y: 40, r: 11, c1: '#fff6c8', c2: '#ffffff', halo: true },
     far: { t: 'hills', c: ['#3a7a5a', '#2a6048'] }, mid: { t: 'hills', band: '#2a5a38', hill: '#245030', deco: ['tree', 'tree', 'tree', 'palm'], dense: true },
-    stone: '#7a8468', moss: true, deco: ['tree', 'statue', 'palm'], glow: PALE, side: '#5a6a48', road: '#4a4030', dash: null, zp: 'city',
+    stone: '#7a8468', moss: true, natural: true, deco: ['tree', 'statue', 'palm'], glow: PALE, side: '#5a6a48', road: '#4a4030', dash: null, zp: 'city',
     picks: ['tronconneuse', 'med', 'arbalete', 'ammo'] },
   { name: 'SYDNEY', sub: 'MATIN', kind: 'city', len: 3000, seed: 61, sky: SK.noon, stars: 0, sun: { x: 120, y: 50, r: 12, c1: '#fff6c8', c2: '#ffffff', halo: true }, clouds: true,
     far: { t: 'sky', c: ['#8ab0d0', '#6a94bc'], win: ['#e8f4ff', '#e8f4ff'], lo: 100, hi: 150, mark: 'sydney' }, mid: { t: 'city', c: '#7a9cc0', lo: 40, hi: 120, lit: .08, win: ['#e8f4ff'] },
@@ -179,11 +180,33 @@ const LEVELS = [
     far: { t: 'hills', c: ['#8a98a8', '#a8b4c0'] }, mid: { t: 'hills', band: '#d0d8e0', hill: '#b8c4d0', deco: ['pine', 'pine', 'pine'], snow: true },
     metal: '#6a7684', signs: ['STOP', 'SECTEUR 7'], glow: COOL, side: '#d8e0e8', road: '#7a8490', dash: null, zp: 'base',
     picks: ['lanceflammes', 'med', 'ak47', 'ammo'] },
-  { name: 'ANTARCTIQUE', sub: 'AURORE AUSTRALE', kind: 'base', len: 1800, seed: 90, boss: 2, aurora: true, snow: true, sky: SK.aurora, stars: 150, sun: { x: 500, y: 40, r: 8, c1: '#cfd6ee', c2: '#eef1fb', moon: true },
+  { name: 'ANTARCTIQUE', sub: 'AURORE AUSTRALE', kind: 'base', len: 1800, seed: 90, boss: 3, aurora: true, snow: true, sky: SK.aurora, stars: 150, sun: { x: 500, y: 40, r: 8, c1: '#cfd6ee', c2: '#eef1fb', moon: true },
     far: { t: 'hills', c: ['#1a3a52', '#28506a'] }, mid: { t: 'hills', band: '#b8d0e0', hill: '#9cb8cc', deco: ['ice', 'ice'], snow: true },
     metal: '#4a5a6a', signs: ['LABO', 'NIVEAU 0'], glow: 'rgba(120,255,200,.06)', side: '#c8dcea', road: '#5a7084', dash: null, zp: 'base',
     picks: ['laser', 'med', 'minigun', 'ammo', 'med', 'lancegrenades'] },
 ];
+
+const FOREST = { kind: 'forest', stars: 0, dash: null, natural: true, zp: 'city', glow: PALE };
+const NEWLV = [
+  { ...FOREST, name: 'FORET-NOIRE', sub: 'BRUME DU MATIN', len: 2700, seed: 404, fog: true, sky: ['#5a7a8a', '#7a98a4', '#9ab4ba', '#b8ccc8', '#d4e0d0', '#e8ecd8'], sun: { x: 300, y: 60, r: 12, c1: '#f4f0d8', c2: '#ffffff', halo: true },
+    far: { t: 'hills', c: ['#5a8078', '#44685c'] }, mid: { t: 'hills', band: '#2e5038', hill: '#284a34', deco: ['pine', 'pine', 'pine'], dense: true },
+    tree: 'pine', trunk: '#4a3626', leaf: ['#234a34', '#2e5a3e', '#1c3e2c'], side: '#3e5a34', road: '#5a4630', picks: ['shotgun', 'med', 'hache', 'ammo'] },
+  { ...FOREST, name: 'CANADA', sub: 'AUTOMNE', len: 2900, seed: 1867, weather: 'leaves', sky: SK.day, clouds: true, sun: { x: 420, y: 44, r: 11, c1: '#fff6c8', c2: '#ffffff', halo: true },
+    far: { t: 'hills', c: ['#8a7a9a', '#a87a5a'] }, mid: { t: 'hills', band: '#8a5a2a', hill: '#a05a28', deco: ['autumn', 'autumn', 'pine'], dense: true },
+    tree: 'oak', trunk: '#5a4030', leaf: ['#d8622a', '#e8a030', '#b83a24', '#e8c040'], side: '#6a6a34', road: '#6a5034', picks: ['magnum', 'med', 'tronconneuse', 'ammo'] },
+  { ...FOREST, name: 'TRANSYLVANIE', sub: 'PLEINE LUNE', len: 1800, seed: 1431, boss: 2, fog: true, sky: SK.night, stars: 100, sun: { x: 180, y: 56, r: 26, c1: '#d8dcee', c2: '#f4f6ff', moon: true },
+    far: { t: 'hills', c: ['#1c2444', '#141a34'], mark: 'castle' }, mid: { t: 'hills', band: '#141c28', hill: '#101622', deco: ['dead', 'pine', 'dead'] },
+    tree: 'oak', trunk: '#2a2028', leaf: ['#141c2c', '#1c2638', '#0e1420'], glow: COOL, side: '#28303a', road: '#2a2428', picks: ['arbalete', 'med', 'shotgun', 'ammo', 'med'] },
+  { ...FOREST, name: 'CALIFORNIE', sub: 'SEQUOIAS GEANTS', len: 3000, seed: 1849, sky: SK.noon, sun: { x: 200, y: 40, r: 12, c1: '#fff6c8', c2: '#ffffff', halo: true },
+    far: { t: 'hills', c: ['#7aa0b0', '#5a8a7a'] }, mid: { t: 'hills', band: '#3a6a3a', hill: '#2e5a34', deco: ['pine', 'pine', 'tree'], dense: true },
+    tree: 'sequoia', trunk: '#8a4a30', leaf: ['#2e6a3a', '#3a7a44', '#245a30'], side: '#4a6a38', road: '#7a5a3a', picks: ['minigun', 'med', 'machette', 'ammo'] },
+  { ...FOREST, name: 'KYOTO', sub: 'FORET DE BAMBOUS', len: 3000, seed: 794, torii: true, sky: SK.dawn, stars: 10, sun: { x: 440, y: 140, r: 16, c1: '#ffe0b0', c2: '#fff4dc' },
+    far: { t: 'hills', c: ['#8a7a9a', '#6a6a8a'], mark: 'fuji' }, mid: { t: 'hills', band: '#4a7a4a', hill: '#3e6a44', deco: ['tree', 'tree', 'pine'], dense: true },
+    tree: 'bamboo', trunk: '#5a9a4a', leaf: ['#7ac05a', '#5aa04a', '#9ad06a'], side: '#6a7a58', road: '#8a8070', picks: ['katana', 'med', 'laser', 'ammo'] },
+];
+{ const all = LEVELS.concat(NEWLV); LEVELS.length = 0;
+  ['BRONX', 'MANHATTAN', 'ZONE 51', 'PARIS', 'LONDRES', 'LE CAIRE', 'ROME', 'FORET-NOIRE', 'TOKYO', 'TCHERNOBYL', 'MOSCOU', 'RIO', 'AMAZONIE', 'CANADA', 'TRANSYLVANIE', 'SYDNEY', 'SIBERIE', 'CALIFORNIE', 'KYOTO', 'ANTARCTIQUE'].forEach(n => LEVELS.push(all.find(l => l.name === n)));
+  LEVELS.forEach(l => l.picks.splice(2, 0, 'speed')); }
 
 /* ============ arrière-plans ============ */
 function skyCanvas(L) {
@@ -214,7 +237,9 @@ function tower(g, cx, top, col, band) {
   const yb = top + (214 - top) * .62; R(g, cx - 13, yb, 27, 3, col); R(g, cx - 6, top + (214 - top) * .33, 13, 2, col); R(g, cx, top - 12, 1, 12, col);
 }
 const MARKS = {
-  eiffel: (g, c) => tower(g, 300, 52, c[1]),
+  eiffel: (g, c) => tower(g, 300, 14, shade(c[1], .8)),
+  fuji: (g, c) => { for (let y = 60; y < 214; y++) { const h = (y - 60) * 1.7; R(g, 256 - h, y, h * 2, 1, y < 86 ? '#f4f0f8' : c[0]); } },
+  castle: (g, c) => { const d = shade(c[1], .55); for (let y = 150; y < 214; y++) { const h = (y - 150) * 2.2 + 50; R(g, 300 - h, y, h * 2, 1, shade(c[1], .8)); } R(g, 272, 118, 58, 40, d); [[266, 100, 14], [322, 94, 14], [292, 78, 18]].forEach(([x, top, w]) => { R(g, x, top, w, 160 - top, d); for (let i = 0; i < w / 2 + 2; i++) R(g, x - 2 + i, top - i * 2, w + 4 - i * 2, 2, d); R(g, x + w / 2 - 1, top + 8, 2, 4, '#f2b24a'); }); for (let x = 272; x < 330; x += 6) R(g, x, 114, 3, 4, d); R(g, 296, 134, 3, 5, '#f2b24a'); },
   bigben: (g, c) => { const x = 300, d = c[1]; R(g, x - 7, 80, 14, 134, d); R(g, x - 9, 76, 18, 5, d); for (let i = 0; i < 14; i++) R(g, x - 7 + i / 2, 76 - i, 14 - i, 1, d); R(g, x, 54, 1, 8, d); disc(g, x, 92, 5, '#f8e8a0'); R(g, x, 89, 1, 3, '#222'); R(g, x, 92, 3, 1, '#222'); R(g, x + 8, 150, 96, 64, d); for (let i = 0; i < 6; i++) { R(g, x + 14 + i * 15, 140, 3, 10, d); R(g, x + 15 + i * 15, 134, 1, 6, d); } },
   pyramids: g => [[250, 108], [345, 130], [415, 150]].forEach(([cx, top]) => { for (let y = top; y < 196; y++) { const h = (y - top) * 1.25; R(g, cx - h, y, h, 1, y % 7 ? '#ecd096' : '#dcc084'); R(g, cx, y, h, 1, y % 7 ? '#b89458' : '#a8844c'); } }),
   colosseum: (g, c) => { const x0 = 230, d = shade(c[1], 1.5), k = shade(c[1], .6); [[50, 128], [22, 154], [0, 180]].forEach(([o, y]) => { R(g, x0 + o, y, 150 - o, 26, d); R(g, x0 + o, y, 150 - o, 2, shade(d, 1.2)); for (let ax = x0 + o + 5; ax < x0 + 142; ax += 14) { R(g, ax, y + 9, 8, 17, k); R(g, ax + 1, y + 7, 6, 2, k); } }); },
@@ -250,7 +275,7 @@ function deco(g, t, x, b, s, snow) {
   if (t === 'palm') { for (let i = 0; i < 13; i++) P(Math.sin(i / 5) * 2, -i * 2 - 2, 2, 2, i % 2 ? '#7a5a34' : '#6a4a2a'); [[-9, -27, 9, 2], [1, -27, 9, 2], [-7, -30, 7, 2], [1, -30, 7, 2], [-10, -24, 5, 2], [6, -24, 5, 2], [-2, -32, 5, 3]].forEach(a => P(...a, '#3f8a44')); P(-11, -22, 3, 2, '#2e6a36'); P(9, -22, 3, 2, '#2e6a36'); }
   else if (t === 'cactus') { P(0, -14, 2, 14, '#5a7a3a'); P(-4, -11, 4, 2, '#5a7a3a'); P(-4, -15, 2, 5, '#5a7a3a'); P(2, -8, 4, 2, '#5a7a3a'); P(4, -12, 2, 5, '#5a7a3a'); }
   else if (t === 'pine') { P(0, -5, 2, 5, '#4a3a2a'); for (let i = 0; i < 5; i++) { P(-6 + i, -8 - i * 4, 14 - i * 2, 4, i % 2 ? '#2a5a40' : '#346a48'); if (snow) P(-6 + i, -8 - i * 4, 14 - i * 2, 1, '#eef2f8'); } }
-  else if (t === 'tree') { P(0, -12, 3, 12, '#5a4028'); disc(g, x + s, b - 20 * s, 9 * s, '#2e7a3c'); disc(g, x - 5 * s, b - 15 * s, 6 * s, '#3a8a46'); disc(g, x + 7 * s, b - 15 * s, 6 * s, '#256a34'); disc(g, x - 2 * s, b - 24 * s, 4 * s, '#4a9a52'); }
+  else if (t === 'tree' || t === 'autumn') { const A = t === 'tree' ? ['#2e7a3c', '#3a8a46', '#256a34', '#4a9a52'] : ['#d8622a', '#e8a030', '#b83a24', '#e8c040']; P(0, -12, 3, 12, '#5a4028'); disc(g, x + s, b - 20 * s, 9 * s, A[0]); disc(g, x - 5 * s, b - 15 * s, 6 * s, A[1]); disc(g, x + 7 * s, b - 15 * s, 6 * s, A[2]); disc(g, x - 2 * s, b - 24 * s, 4 * s, A[3]); }
   else if (t === 'dead') { P(0, -18, 2, 18, '#3a3428'); P(-5, -14, 5, 1, '#3a3428'); P(-5, -19, 1, 5, '#3a3428'); P(2, -10, 5, 1, '#3a3428'); P(6, -16, 1, 6, '#3a3428'); P(-2, -22, 1, 5, '#3a3428'); }
   else if (t === 'cypress') { P(0, -4, 2, 4, '#4a3a2a'); for (let i = 0; i < 14; i++) { const w = i < 3 ? 2 + i : i > 10 ? 15 - i : 5; P(1 - w / 2, -6 - i * 2, w, 2, i % 3 ? '#1e4a34' : '#2a5a40'); } }
   else if (t === 'ice') { for (let i = 0; i < 12; i++) P(-i / 2, -24 + i * 2, i + 1, 2, i % 3 ? '#d8ecf8' : '#a8cce0'); for (let i = 0; i < 7; i++) P(8 - i / 2, -14 + i * 2, i + 1, 2, '#c0dcec'); }
@@ -293,9 +318,9 @@ function midLayer(L) {
 /* ============ décor : pièces ============ */
 function street(c, len, L) {
   const s = L.side, r = L.road, hi = shade(s, 1.3), jo = shade(s, .8), dash = L.dash === undefined ? '#a88a34' : L.dash;
-  R(c, 0, 210, len, 16, s); R(c, 0, 210, len, 1, hi); for (let x = 10; x < len; x += 26) R(c, x, 211, 1, 15, jo);
+  R(c, 0, 210, len, 16, s); if (!L.natural) { R(c, 0, 210, len, 1, hi); for (let x = 10; x < len; x += 26) R(c, x, 211, 1, 15, jo); } else for (let i = 0; i < len / 4; i++) R(c, rnd() * len, 209 + rnd() * 16, 1, 2 + rnd() * 2, rnd() < .5 ? hi : jo);
   for (let i = 0; i < len / 7; i++) R(c, rnd() * len, 212 + rnd() * 13, 1, 1, rnd() < .5 ? hi : jo);
-  R(c, 0, 226, len, 3, shade(s, .68)); R(c, 0, 226, len, 1, hi);
+  R(c, 0, 226, len, 3, shade(s, L.natural ? .85 : .68)); if (!L.natural) R(c, 0, 226, len, 1, hi);
   R(c, 0, 229, len, 41, r); for (let i = 0; i < len * .55; i++) R(c, rnd() * len, 230 + rnd() * 40, 1 + (rnd() * 2 | 0), 1, shade(r, rnd() < .5 ? 1.25 : .75));
   if (dash) for (let x = 14; x < len; x += 44) R(c, x, 248, 20, 2, dash);
 }
@@ -388,9 +413,9 @@ function carArt(c, x, body, taxi) {
   R(c, x, 256, 78, 2, lo); R(c, x + 76, 247, 2, 4, '#fff0c0'); R(c, x, 247, 2, 4, '#b8362f');
   disc(c, x + 16, 259, 5, '#0d0b14'); disc(c, x + 62, 259, 5, '#0d0b14'); disc(c, x + 16, 259, 2, '#6a7280'); disc(c, x + 62, 259, 2, '#6a7280');
 }
-function jeepArt(c, x, col) {
+function jeepArt(c, x, col, label = true) {
   R(c, x - 2, 262, 74, 3, 'rgba(0,0,0,.4)'); R(c, x, 246, 70, 12, col); R(c, x + 22, 234, 26, 12, shade(col, .82)); R(c, x + 25, 237, 20, 8, '#161c2c'); R(c, x, 246, 70, 2, shade(col, 1.3)); R(c, x + 54, 240, 12, 6, col);
-  txt(c, 'US', x + 6, 250, 1, '#e9e9e0', 0, false); disc(c, x + 14, 259, 5, '#0d0b14'); disc(c, x + 56, 259, 5, '#0d0b14'); disc(c, x + 14, 259, 2, '#6a6e66'); disc(c, x + 56, 259, 2, '#6a6e66');
+  if (label) txt(c, 'US', x + 6, 250, 1, '#e9e9e0', 0, false); disc(c, x + 14, 259, 5, '#0d0b14'); disc(c, x + 56, 259, 5, '#0d0b14'); disc(c, x + 14, 259, 2, '#6a6e66'); disc(c, x + 56, 259, 2, '#6a6e66');
 }
 function fence(c, x, w, top, col, barbed) {
   c.fillStyle = col; for (let y = top + 2; y < 210; y++) for (let fx = x + (y % 2); fx < x + w; fx += 2) c.fillRect(fx, y, 1, 1);
@@ -441,7 +466,7 @@ function prop(w, h, x, top, base, fn, solid) {
   if (solid) W.solids.push(solid);
 }
 function furniture(c, L) {
-  for (let lx = 150; lx < L.len - 230; lx += 240 + (rnd() * 70 | 0)) {
+  for (let lx = 150; L.kind !== 'forest' && lx < L.len - 230; lx += 240 + (rnd() * 70 | 0)) {
     let px = lx; if (W.lads.some(l => Math.abs(l.cx - px + 6) < 30)) px += 46;
     lampGlow(c, px, L.glow);
     prop(24, 114, px - 18, 114, 226, g => { R(g, px, 116, 3, 110, '#0d0b14'); R(g, px - 2, 222, 7, 4, '#0d0b14'); R(g, px - 12, 116, 14, 2, '#0d0b14'); R(g, px - 16, 117, 9, 4, '#0d0b14'); R(g, px - 15, 121, 7, 2, '#fff0c0'); });
@@ -450,10 +475,14 @@ function furniture(c, L) {
     if (L.phone && rnd() < .6) prop(16, 36, hx - 1, 190, 226, g => { R(g, hx, 192, 14, 34, '#c2262f'); R(g, hx, 192, 14, 2, '#e0453a'); R(g, hx + 2, 197, 10, 22, '#1c2a34'); R(g, hx + 6, 197, 2, 22, '#c2262f'); R(g, hx + 2, 204, 10, 1, '#c2262f'); R(g, hx + 2, 211, 10, 1, '#c2262f'); R(g, hx + 1, 190, 12, 2, '#c2262f'); });
     else prop(12, 16, hx - 1, 210, 225, g => { R(g, hx + 1, 213, 6, 11, '#c2362f'); R(g, hx, 212, 8, 2, '#e0554a'); R(g, hx + 2, 210, 4, 2, '#e0554a'); R(g, hx - 1, 216, 10, 3, '#c2362f'); R(g, hx + 3, 216, 2, 2, '#7a1c1c'); R(g, hx, 223, 8, 2, '#8a2420'); });
   }
-  const cols = L.kind === 'city' ? ['#5a6a8a', '#7a2a2e', '#3a6a5a', '#8a8a94'] : L.kind === 'base' ? [shade(L.metal, .8)] : ['#b89a5a', '#8a6a4a'];
+  if (L.kind === 'paris') for (let hx = 230; hx < L.len - 260; hx += 280 + (rnd() * 160 | 0)) {
+    if (rnd() < .5) prop(16, 48, hx - 1, 178, 226, g => { R(g, hx + 1, 188, 12, 38, '#24523a'); R(g, hx + 1, 188, 2, 38, '#34704e'); R(g, hx, 185, 14, 4, '#1c4430'); R(g, hx + 2, 181, 10, 4, '#24523a'); R(g, hx + 5, 178, 4, 3, '#1c4430'); R(g, hx, 222, 14, 4, '#1c4430'); R(g, hx + 3, 193, 8, 11, '#e9dfc0'); R(g, hx + 4, 195, 6, 4, '#b8463c'); R(g, hx + 3, 207, 8, 11, '#e0b040'); R(g, hx + 4, 211, 6, 3, '#3a5a9a'); });
+    else prop(26, 56, hx - 11, 170, 226, g => { R(g, hx, 184, 3, 42, '#24523a'); R(g, hx - 2, 222, 7, 4, '#1c4430'); R(g, hx - 11, 178, 25, 11, '#1c4430'); R(g, hx - 10, 179, 23, 9, '#b01c2c'); txt(g, 'METRO', hx + 2, 181, 1, '#fff', 1, false); disc(g, hx + 1, 173, 3, '#ffe9a8'); R(g, hx, 176, 3, 2, '#24523a'); });
+  }
+  const cols = L.kind === 'city' ? ['#5a6a8a', '#7a2a2e', '#3a6a5a', '#8a8a94'] : L.kind === 'paris' ? ['#3a4a6a', '#8a8a94', '#6a2a2e', '#d8d4c8'] : L.kind === 'base' ? [shade(L.metal, .8)] : L.kind === 'forest' ? ['#7a3a2a', '#4a5a3a'] : ['#b89a5a', '#8a6a4a'];
   for (let cx = 120, i = 0; cx < L.len - 320; cx += 420 + (rnd() * 280 | 0), i++) {
     const x = cx, taxi = L.taxi && i % 2 === 0, col = taxi ? '#e0a81e' : pick(cols);
-    prop(84, 38, x - 3, 229, 263, g => L.kind === 'city' ? carArt(g, x, col, taxi) : jeepArt(g, x, col), { x0: x, x1: x + 76, y0: 246 });
+    prop(84, 38, x - 3, 229, 263, g => L.kind === 'city' || L.kind === 'paris' ? carArt(g, x, col, taxi) : jeepArt(g, x, col, L.kind === 'base'), { x0: x, x1: x + 76, y0: 246 });
   }
 }
 function genCity(c, L) {
@@ -568,6 +597,123 @@ function stoneWallFlat(c, S, x, y, w, h) {
   for (let yy = y + 6; yy < y + h; yy += 7) R(c, x, yy, w, 1, S.dark); for (let bx = x + 7; bx < x + w; bx += 14) for (let yy = y; yy < y + h; yy += 14) R(c, bx, yy, 1, 6, S.dark);
 }
 
+/* ---------- Paris : immeubles haussmanniens ---------- */
+function haussmann(c, L, x, w, top, S) {
+  const gl = [L.glass, shade(L.glass, 1.7)], iron = '#15131c', zn = '#5e6c84';
+  R(c, x, top, w, 210 - top, S.base); for (let y = top + 5; y < 210; y += 6) R(c, x, y, w, 1, shade(S.base, .92));
+  R(c, x, top, 2, 210 - top, S.light); R(c, x + w - 3, top, 3, 210 - top, 'rgba(0,0,0,.22)');
+  for (let i = 0; i < 20; i++) R(c, x + 5 - i / 4, top - 22 + i, w - 10 + i / 2, 1, i % 5 ? zn : shade(zn, .8)); R(c, x + 5, top - 23, w - 10, 2, shade(zn, 1.4));
+  const n = Math.floor((w - 10) / 22), m = (w - n * 22 + 8) / 2 | 0, rows = [];
+  for (let i = 0; i < n; i++) { const wx = x + m + i * 22; R(c, wx + 1, top - 18, 12, 15, S.light); R(c, wx + 3, top - 15, 8, 11, gl[0]); R(c, wx + 3, top - 15, 3, 4, gl[1]); R(c, wx, top - 20, 14, 2, shade(zn, 1.4)); }
+  [x + 8, x + w - 20].forEach(cx => { R(c, cx, top - 36, 11, 15, '#a8634a'); R(c, cx - 1, top - 37, 13, 2, '#c8846a'); R(c, cx + 1, top - 42, 3, 5, '#c8744a'); R(c, cx + 6, top - 41, 3, 4, '#c8744a'); });
+  R(c, x - 1, top, w + 2, 3, S.light); R(c, x - 1, top + 3, w + 2, 1, S.dark);
+  for (let wy = 146; wy > top + 8; wy -= 30) rows.unshift(wy);
+  rows.forEach((wy, ri) => {
+    const noble = ri === 0 || ri === rows.length - 2;
+    for (let i = 0; i < n; i++) {
+      const wx = x + m + i * 22, lit = rnd() < L.lit;
+      R(c, wx - 1, wy - 1, 14, 24, S.dark); R(c, wx, wy, 12, 22, lit ? L.win : gl[0]); if (!lit) { R(c, wx + 1, wy + 1, 3, 6, gl[1]); R(c, wx + 8, wy + 12, 2, 5, gl[1]); } else R(c, wx, wy, 3, 22, shade(L.win, .8));
+      R(c, wx, wy, 1, 1, S.dark); R(c, wx + 11, wy, 1, 1, S.dark); R(c, wx + 6, wy, 1, 22, '#2a2a34'); R(c, wx, wy + 7, 12, 1, '#2a2a34'); R(c, wx + 4, wy - 3, 4, 2, S.light);
+      if (!noble) { R(c, wx - 1, wy + 15, 14, 1, iron); for (let k = 0; k < 14; k += 2) R(c, wx - 1 + k, wy + 15, 1, 7, iron); R(c, wx - 1, wy + 22, 14, 1, iron); }
+    }
+    if (noble) { R(c, x + 2, wy + 22, w - 4, 2, S.light); R(c, x + 2, wy + 24, w - 4, 1, S.dark); R(c, x + 2, wy + 13, w - 4, 1, iron); R(c, x + 2, wy + 17, w - 4, 1, iron); for (let bx = x + 2; bx < x + w - 2; bx += 2) R(c, bx, wy + 13, 1, 9, iron); }
+    else R(c, x, wy + 25, w, 1, S.light);
+  });
+  R(c, x, 170, w, 2, S.light); R(c, x, 172, w, 1, S.dark);
+}
+function porte(c, x) {
+  const d = pick(['#1e3a5a', '#24523a', '#5a2428']);
+  for (let i = 0; i < 6; i++) R(c, x + 5 - i, 176 + i, 14 + i * 2, 1, d); R(c, x, 182, 24, 28, d); R(c, x - 2, 182, 2, 28, '#e8dcc0'); R(c, x + 24, 182, 2, 28, '#e8dcc0');
+  R(c, x + 11, 178, 2, 32, shade(d, .6)); [x + 3, x + 15].forEach(px => { R(c, px, 186, 6, 9, shade(d, 1.3)); R(c, px, 198, 6, 9, shade(d, 1.3)); }); R(c, x + 9, 197, 2, 2, '#d9a441'); R(c, x + 13, 197, 2, 2, '#d9a441');
+}
+function genParis(c, L) {
+  const end = L.len - 200, B = L.bricks.map(tri); let x = -10, last = 0, alt = 0, prev = '', pi = 0, first = true;
+  const np = () => L.picks[pi++ % L.picks.length];
+  while (x < end - 30) {
+    let t = first ? 'hau' : x - last > 360 ? (alt++ % 2 ? 'scaf' : 'kiosk') : pick(['hau', 'hau', 'park', 'hau']);
+    if (t === prev && t !== 'hau') t = 'hau';
+    first = false;
+    let w = t === 'kiosk' ? 70 : t === 'park' ? 90 + (rnd() * 3 | 0) * 15 : t === 'scaf' ? 142 : 120 + (rnd() * 3 | 0) * 22;
+    if (x + w > end) { t = 'park'; w = end - x; }
+    if (t === 'hau' || t === 'scaf') {
+      haussmann(c, L, x, w, 40 + (rnd() * 3 | 0) * 6, pick(B));
+      if (t === 'scaf') { porte(c, x + 20); scaffold(c, x + 70); const pl = { x: x + 70, w: 58, y: 167 }; W.plats.push(pl); W.lads.push({ cx: x + 83, top: 167, plat: pl }); W.picks.push({ x: x + 110, y: 167, type: np() }); last = x; }
+      else if (rnd() < .6) shop(c, L, x, w); else { porte(c, x + (w >> 1) - 12); [x + 14, x + w - 30].forEach(wx => { R(c, wx, 182, 16, 20, '#2a2a34'); R(c, wx + 1, 183, 14, 18, L.glass); for (let k = 2; k < 16; k += 3) R(c, wx + k, 183, 1, 18, '#15131c'); }); }
+    } else if (t === 'kiosk') {
+      const k = x + 7; R(c, k + 4, 172, 48, 38, '#24523a'); R(c, k + 4, 172, 2, 38, '#34704e'); R(c, k + 8, 180, 40, 16, '#12281c');
+      for (let i = 0; i < 6; i++) { R(c, k + 10 + i * 6, 182, 5, 6, pick(['#e9dfc0', '#b8463c', '#e0b040', '#3a5a9a'])); R(c, k + 10 + i * 6, 189, 5, 6, pick(['#e9dfc0', '#b8463c', '#6ab06a', '#d06a8a'])); }
+      R(c, k, 166, 56, 6, '#1c4430'); R(c, k, 166, 56, 1, '#34704e'); for (let i = 0; i < 56; i += 4) R(c, k + i, 172, 2, 2, '#1c4430'); txt(c, 'PRESSE', k + 28, 200, 1, '#e0b040', 1, false);
+      ladderArt(c, k + 42, 167);
+      const pl = { x: k, w: 56, y: 166 }; W.plats.push(pl); W.lads.push({ cx: k + 47, top: 166, plat: pl }); W.picks.push({ x: k + 18, y: 166, type: np() }); last = x;
+    } else {
+      deco(c, 'tree', x + w * .3 | 0, 210, 2); deco(c, 'tree', x + w * .72 | 0, 206, 2);
+      R(c, x + (w >> 1) - 12, 201, 24, 2, '#6a4a2a'); R(c, x + (w >> 1) - 12, 196, 24, 2, '#6a4a2a'); R(c, x + (w >> 1) - 10, 203, 2, 7, '#15131c'); R(c, x + (w >> 1) + 8, 203, 2, 7, '#15131c');
+      for (let bx = x; bx < x + w; bx += 3) { R(c, bx, 190, 1, 20, '#15131c'); R(c, bx, 188, 1, 1, '#d9a441'); } R(c, x, 193, w, 1, '#15131c'); R(c, x, 206, w, 1, '#15131c');
+    }
+    prev = t; x += w;
+  }
+  street(c, L.len, L); bunker(c, L.len - 200, '#8a8478');
+}
+/* ---------- forêts ---------- */
+function trunkArt(c, L, x, w, front) {
+  const base = front ? L.trunk : shade(L.trunk, .66), d = shade(base, .72), l = shade(base, 1.25);
+  if (L.tree === 'bamboo') {
+    R(c, x, 0, w, 210, base); R(c, x, 0, 1, 210, l); for (let y = 4 + x % 11; y < 210; y += 14) R(c, x - 1, y, w + 2, 1, d);
+    for (let k = 0; k < 4; k++) { const yy = rnd() * 150 | 0, r = rnd() < .5; R(c, r ? x + w : x - 7, yy, 7, 1, L.leaf[k % 3]); R(c, r ? x + w + 3 : x - 9, yy + 2, 6, 1, L.leaf[(k + 1) % 3]); }
+    return;
+  }
+  R(c, x, 0, w, 210, base); R(c, x, 0, 2, 210, l); R(c, x + w - 3, 0, 3, 210, d);
+  for (let bx = x + 3; bx < x + w - 3; bx += 3 + (rnd() * 3 | 0)) for (let y = rnd() * 20 | 0; y < 204; y += 14 + (rnd() * 10 | 0)) R(c, bx, y, 1, 6 + (rnd() * 6 | 0), d);
+  R(c, x - 3, 203, w + 6, 7, base); R(c, x - 6, 207, w + 12, 3, base); R(c, x - 3, 203, 2, 7, l);
+  if (L.tree === 'pine') for (let by = -4; by < 118; by += 12) { const hw = w / 2 + 5 + by * .2; R(c, x + w / 2 - hw, by, hw * 2, 8, front ? L.leaf[(by / 12 | 0) % 2] : L.leaf[2]); R(c, x + w / 2 - hw + 3, by + 8, hw * 2 - 6, 2, L.leaf[2]); }
+}
+function genForest(c, L) {
+  const end = L.len - 200, T = L.tree; let x = 0, last = 0, alt = 0, prev = '', pi = 0, first = true;
+  const np = () => L.picks[pi++ % L.picks.length], wood = '#7a5632', woodD = '#5a3e22';
+  const grove = (x0, w) => {
+    const n = T === 'bamboo' ? 6 + w / 14 | 0 : T === 'sequoia' ? 1 + (w > 120) : 2 + w / 55 | 0, tw = () => T === 'bamboo' ? 4 + (rnd() * 3 | 0) : T === 'sequoia' ? 30 + (rnd() * 16 | 0) : T === 'pine' ? 9 + (rnd() * 6 | 0) : 12 + (rnd() * 9 | 0);
+    for (let i = 0; i <= n; i++) trunkArt(c, L, x0 + rnd() * (w - 16) | 0, Math.max(4, tw() * .7 | 0), false);
+    for (let i = 0; i < n; i++) { const ww = tw(); trunkArt(c, L, x0 + ((i + .15 + rnd() * .5) * (w / n)) - ww / 2 | 0, ww, true); }
+    if (T !== 'pine') for (let i = 0; i < w / 6; i++) disc(c, x0 + rnd() * w | 0, -8 + rnd() * (T === 'oak' ? 74 : 38) | 0, 9 + rnd() * 10 | 0, pick(L.leaf));
+    for (let i = 0; i < w / 30; i++) { const bx = x0 + rnd() * w | 0; disc(c, bx, 207, 7 + rnd() * 4 | 0, L.leaf[2] || L.leaf[0]); disc(c, bx + 5, 205, 5, L.leaf[0]); }
+  };
+  while (x < end - 30) {
+    let t = first ? 'grove' : x - last > 350 ? (alt++ % 2 ? 'stand' : 'cabin') : pick(['grove', 'grove', 'camp', 'rocks', 'grove']);
+    if (t === prev && t !== 'grove') t = 'grove';
+    first = false;
+    let w = t === 'grove' ? 110 + (rnd() * 4 | 0) * 20 : t === 'cabin' ? 116 : t === 'stand' ? 64 : 84;
+    if (x + w > end) { t = 'grove'; w = end - x; }
+    if (t === 'grove') grove(x, w);
+    else if (t === 'cabin') {
+      R(c, x + 10, 166, 94, 44, wood); for (let y = 166; y < 210; y += 5) { R(c, x + 10, y + 4, 94, 1, woodD); R(c, x + 7, y, 4, 4, shade(wood, 1.2)); R(c, x + 103, y, 4, 4, shade(wood, 1.2)); }
+      R(c, x + 22, 182, 18, 28, woodD); R(c, x + 24, 184, 14, 26, '#3a2a1a'); R(c, x + 35, 197, 2, 2, '#d9a441');
+      R(c, x + 60, 178, 20, 16, woodD); R(c, x + 62, 180, 16, 12, '#f2b24a'); R(c, x + 69, 180, 2, 12, woodD); R(c, x + 62, 185, 16, 1, woodD);
+      R(c, x + 2, 158, 110, 8, woodD); R(c, x + 2, 158, 110, 2, L.leaf[0]); for (let i = 0; i < 12; i++) R(c, x + 4 + rnd() * 104, 160, 3, 2 + rnd() * 3, L.leaf[1]);
+      R(c, x + 14, 138, 12, 20, '#6a6e72'); R(c, x + 12, 136, 16, 3, '#8a8e92'); for (let i = 0; i < 9; i++) R(c, x + 17 + Math.sin(i) * 3, 128 - i * 6, 5 + i % 3, 4, 'rgba(200,200,200,.3)');
+      ladderArt(c, x + 88, 159);
+      const pl = { x: x + 2, w: 110, y: 158 }; W.plats.push(pl); W.lads.push({ cx: x + 93, top: 158, plat: pl }); W.picks.push({ x: x + 50, y: 158, type: np() }); last = x;
+    } else if (t === 'stand') {
+      const tx = x + 7; R(c, tx + 4, 150, 3, 60, woodD); R(c, tx + 43, 150, 3, 60, woodD);
+      for (let i = 0; i < 36; i++) { R(c, tx + 7 + i, 152 + i * .75, 1, 1, wood); R(c, tx + 42 - i, 180 + i * .75, 1, 1, wood); }
+      R(c, tx, 146, 50, 4, wood); R(c, tx, 150, 50, 1, woodD); R(c, tx, 134, 50, 1, woodD); for (let i = 0; i < 50; i += 7) R(c, tx + i, 134, 1, 12, woodD);
+      R(c, tx + 3, 114, 2, 32, woodD); R(c, tx + 45, 114, 2, 32, woodD); for (let i = 0; i < 9; i++) R(c, tx - 4 + i * 3, 113 - i, 58 - i * 6, 1, L.leaf[2] || '#2a4a34'); R(c, tx - 4, 113, 58, 2, woodD);
+      ladderArt(c, tx + 20, 147);
+      const pl = { x: tx, w: 50, y: 146 }; W.plats.push(pl); W.lads.push({ cx: tx + 25, top: 146, plat: pl }); W.picks.push({ x: tx + 41, y: 146, type: np() }); last = x;
+    } else if (t === 'camp') {
+      trunkArt(c, L, x + 2, T === 'bamboo' ? 5 : 8, false);
+      if (L.torii) { const r = '#c2362f'; R(c, x + 18, 150, 5, 60, r); R(c, x + 61, 150, 5, 60, r); R(c, x + 10, 142, 64, 5, r); R(c, x + 6, 138, 72, 4, '#15131c'); R(c, x + 14, 156, 56, 3, r); R(c, x + 39, 147, 6, 9, r); R(c, x + 16, 206, 9, 4, '#3a3a3a'); R(c, x + 59, 206, 9, 4, '#3a3a3a'); }
+      else { const col = pick(['#e06a3c', '#3a7ab0', '#c8b030']); for (let i = 0; i < 26; i++) { R(c, x + 34 - i * .9, 184 + i, i * 1.8 + 1, 1, i % 6 ? col : shade(col, .75)); } for (let i = 8; i < 26; i++) R(c, x + 34 - i * .25, 184 + i, i * .5, 1, '#1a1620');
+        R(c, x + 62, 205, 14, 3, woodD); R(c, x + 64, 202, 10, 3, wood); R(c, x + 66, 196, 2, 6, '#f39a44'); R(c, x + 68, 193, 3, 9, '#ffe14a'); R(c, x + 71, 197, 2, 5, '#f39a44');
+        c.globalCompositeOperation = 'lighter'; disc(c, x + 69, 198, 16, 'rgba(255,160,60,.08)'); disc(c, x + 69, 198, 8, 'rgba(255,160,60,.1)'); c.globalCompositeOperation = 'source-over'; }
+    } else {
+      [[24, 204, 17], [54, 207, 12], [70, 209, 7]].forEach(([dx, y, r]) => { disc(c, x + dx, y, r, '#6a6e72'); disc(c, x + dx - (r / 3 | 0), y - (r / 3 | 0), r * .55 | 0, '#8a8e92'); R(c, x + dx - r + 3, y - r + 1, r, 2, L.leaf[0]); });
+      trunkArt(c, L, x + 74, T === 'bamboo' ? 5 : 8, false);
+    }
+    prev = t; x += w;
+  }
+  street(c, L.len, L); bunker(c, L.len - 200, '#6a6e68');
+}
+
 /* ============ état du jeu ============ */
 let world, sky, far, mid, L, W, li = 0, state = 'title', stT = 0, time = 0, shake = 0, mapX = 0, carry = null, tap = null, earned = 0;
 let p, zombies, bullets, acids, parts, pops, beam, spawnT, kills = 0, totalKills = 0, camX = 0, boss = null, bossState = 0;
@@ -578,14 +724,14 @@ function loadLevel(i) {
   W = { plats: [], lads: [], picks: [], props: [], solids: [] };
   sky = skyCanvas(L); far = farLayer(L); mid = midLayer(L);
   world = mk(L.len, H); const c = world.getContext('2d');
-  (L.kind === 'city' ? genCity : L.kind === 'base' ? genBase : genRuins)(c, L);
+  ({ city: genCity, base: genBase, ruins: genRuins, paris: genParis, forest: genForest })[L.kind](c, L);
   furniture(c, L);
-  p = { x: 40, y: 220, vy: 0, dir: 1, hp: 100, st: 'ground', plat: null, lad: null, gun: 'pistol', ammo: 18, melee: 'batte', cd: 0, inv: 0, swing: 0, flash: 0, walk: 0 };
+  p = { x: 40, y: 220, vy: 0, dir: 1, hp: 100, st: 'ground', plat: null, lad: null, gun: 'pistol', ammo: 18, melee: 'batte', cd: 0, inv: 0, swing: 0, flash: 0, walk: 0, speedT: 0 };
   if (carry) { p.gun = carry.gun; p.ammo = Math.max(carry.ammo, 12); p.melee = carry.melee; carry = null; }
   earned = 0;
   zombies = []; bullets = []; acids = []; parts = []; pops = []; beam = null; spawnT = 1.5; kills = 0; camX = 0; boss = null; bossState = 0;
-  L.zmax = Math.min(12, 5 + (i * .5 | 0)); L.rate = Math.max(1.2, 2.5 - i * .09); L.types = i < 1 ? 'n' : i < 3 ? 'nnnr' : i < 6 ? 'nnnrra' : 'nnrraa'; L.hpx = 1 + i * .07;
-  [300, 420, 560].forEach(x => spawn(x));
+  L.zmax = Math.min(15, 7 + (i * .5 | 0)); L.rate = Math.max(.8, 1.7 - i * .05); L.types = i < 1 ? 'n' : i < 3 ? 'nnnr' : i < 6 ? 'nnnrra' : 'nnrraa'; L.hpx = 1 + i * .05;
+  [250, 330, 410, 500, 600].forEach(x => spawn(x));
 }
 function spawn(x, forceT) {
   const t = forceT || pick(L.types.split('')), T = ZT[t];
@@ -605,7 +751,7 @@ function hurtZ(z, dmg, dir) {
   if (z.hp <= 0) {
     blood(z.x, z.y - 10, z.y, z.boss ? 60 : 12); kills++; totalKills++; SV.coins += z.boss ? 25 : 1; earned += z.boss ? 25 : 1; zombies.splice(zombies.indexOf(z), 1);
     if (z.boss) { boss = null; bossState = 2; shake = 3; snd(60, .8, 'sawtooth', .09, -20); W.picks.push({ x: z.x, y: z.y, type: 'med' }); pop(z.x, z.y - 50, 'BOSS VAINCU !', '#7aff7a'); }
-    else { const q = Math.random(); if (q < .16) W.picks.push({ x: z.x, y: z.y, type: 'ammo' }); else if (q < .2) W.picks.push({ x: z.x, y: z.y, type: 'med' }); }
+    else { const q = Math.random(); if (q < .16) W.picks.push({ x: z.x, y: z.y, type: 'ammo' }); else if (q < .2) W.picks.push({ x: z.x, y: z.y, type: 'med' }); else if (q < .235) W.picks.push({ x: z.x, y: z.y, type: 'speed' }); }
   }
 }
 function explode(x, gy, r, dmg) {
@@ -622,17 +768,17 @@ function update(dt) {
   if (state === 'title' || state === 'confirm') updateTitle(dt);
   if (state !== 'play') return;
   const doorX = L.len - 100;
-  p.cd -= dt; p.inv -= dt; p.swing -= dt; p.flash -= dt; if (beam) { beam.t -= dt; if (beam.t <= 0) beam = null; }
+  p.cd -= dt; p.inv -= dt; p.swing -= dt; p.flash -= dt; p.speedT -= dt; const fast = p.speedT > 0 ? 1.65 : 1; if (beam) { beam.t -= dt; if (beam.t <= 0) beam = null; }
   if (p.st === 'ladder') {
-    p.y += input.y * 62 * dt; p.x = p.lad.cx; p.walk += Math.abs(input.y) * dt * 8;
+    p.y += input.y * 62 * fast * dt; p.x = p.lad.cx; p.walk += Math.abs(input.y) * dt * 8;
     if (p.y <= p.lad.top) { p.y = p.lad.top; p.st = 'plat'; p.plat = p.lad.plat; }
     else if (p.y >= TOP) { p.y = TOP + 1; p.st = 'ground'; }
   } else {
     const ox = p.x;
-    p.x = clamp(p.x + input.x * 72 * dt, 8, doorX);
+    p.x = clamp(p.x + input.x * 72 * fast * dt, 8, doorX);
     if (Math.abs(input.x) > .2) p.dir = Math.sign(input.x);
     if (Math.abs(input.x) > .2 || (p.st === 'ground' && Math.abs(input.y) > .2)) p.walk += dt * 9;
-    if (p.st === 'ground') { p.y = clamp(p.y + input.y * 50 * dt, TOP, BOT); solidFix(p, ox); }
+    if (p.st === 'ground') { p.y = clamp(p.y + input.y * 50 * fast * dt, TOP, BOT); solidFix(p, ox); }
     const lad = W.lads.find(l => Math.abs(p.x - l.cx) < 8);
     if (lad) {
       if (p.st === 'ground' && p.y <= TOP + 2.5 && input.y < -.55) { p.st = 'ladder'; p.lad = lad; p.y = TOP - 1; }
@@ -653,7 +799,7 @@ function update(dt) {
   camX += (clamp(p.x - VW * .4 + p.dir * 20, 0, L.len - VW) - camX) * Math.min(1, dt * 5);
   /* zombies */
   spawnT -= dt;
-  if (spawnT <= 0 && zombies.length < (boss ? 4 : L.zmax)) {
+  if (spawnT <= 0 && zombies.length < (boss ? 3 : L.zmax)) {
     spawnT = L.rate * (1 - .4 * p.x / L.len) * (.7 + Math.random() * .6) * (boss ? 1.8 : 1);
     let x = Math.random() < .7 ? camX + VW + 14 : camX - 14;
     if (x < 0) x = camX + VW + 14; if (x > doorX - 30) x = camX - 14;
@@ -664,13 +810,13 @@ function update(dt) {
     z.hit -= dt; const ox = z.x; let sp = z.sp;
     if (z.boss) {
       const B = z.boss; z.mt -= dt;
-      if (z.mode === 'walk' && z.mt <= 0 && B.charge) { z.mode = 'tele'; z.mt = .6; z.cdir = Math.sign(p.x - z.x) || 1; }
+      if (z.mode === 'walk' && z.mt <= 0 && B.charge) { z.mode = 'tele'; z.mt = .85; z.cdir = Math.sign(p.x - z.x) || 1; }
       else if (z.mode === 'tele' && z.mt <= 0) { z.mode = 'charge'; z.mt = 1; snd(120, .3, 'sawtooth', .06, 80); }
       else if (z.mode === 'charge' && z.mt <= 0) { z.mode = 'walk'; z.mt = 2.2 + Math.random() * 1.5; }
       if (z.mode === 'tele') sp = 0;
-      if (z.mode === 'charge') { z.x = clamp(z.x + z.cdir * 140 * dt, camX - 30, L.len - 60); z.dir = z.cdir; z.y += clamp(py - z.y, -30 * dt, 30 * dt); z.ph += dt * 14; sp = -1; }
-      if (B.spit && (z.spitT -= dt) <= 0) { z.spitT = 1.7; const dx = p.x - z.x, dy = py - z.y, m = Math.hypot(dx, dy) || 1; acids.push({ x: z.x, y: z.y, vx: dx / m * 115, vy: dy / m * 115, life: 3.5 }); snd(400, .12, 'triangle', .05, -200); }
-      if (B.summon && (z.sumT -= dt) <= 0) { z.sumT = 6.5; spawn(camX - 14, 'r'); spawn(camX + VW + 14, 'n'); }
+      if (z.mode === 'charge') { z.x = clamp(z.x + z.cdir * 105 * dt, camX - 30, L.len - 60); z.dir = z.cdir; z.y += clamp(py - z.y, -30 * dt, 30 * dt); z.ph += dt * 14; sp = -1; }
+      if (B.spit && (z.spitT -= dt) <= 0) { z.spitT = 2.3; const dx = p.x - z.x, dy = py - z.y, m = Math.hypot(dx, dy) || 1; acids.push({ x: z.x, y: z.y, vx: dx / m * 115, vy: dy / m * 115, life: 3.5 }); snd(400, .12, 'triangle', .05, -200); }
+      if (B.summon && (z.sumT -= dt) <= 0) { z.sumT = 8.5; spawn(camX - 14, 'r'); spawn(camX + VW + 14, 'n'); }
     }
     if (sp >= 0) {
       if (Math.abs(z.kb) > 4) { z.x += z.kb * dt; z.kb *= Math.pow(.002, dt); }
@@ -695,7 +841,7 @@ function update(dt) {
     if (b.boom && b.life <= 0 && b.pierce > 0 && b.gy > 0) explode(b.x, b.gy, b.boom, b.dmg);
   });
   bullets = bullets.filter(b => b.life > 0 && b.pierce > 0 && b.x > camX - 20 && b.x < camX + VW + 20);
-  acids.forEach(a => { a.x += a.vx * dt; a.y += a.vy * dt; a.life -= dt; if (reach && Math.abs(a.x - p.x) < 7 && Math.abs(a.y - py) < 7) { a.life = 0; hurtP(12, a.x); } });
+  acids.forEach(a => { a.x += a.vx * dt; a.y += a.vy * dt; a.life -= dt; if (reach && Math.abs(a.x - p.x) < 7 && Math.abs(a.y - py) < 7) { a.life = 0; hurtP(8, a.x); } });
   acids = acids.filter(a => a.life > 0 && a.y > TOP - 6 && a.y < BOT + 8);
   /* bonus */
   W.picks.forEach(k => {
@@ -703,6 +849,7 @@ function update(dt) {
     k.got = true; snd(660, .12, 'square', .05, 400);
     if (k.type === 'med') { p.hp = Math.min(100, p.hp + 40); pop(k.x, k.y - 26, '+40 VIE', '#7aff7a'); }
     else if (k.type === 'ammo') { p.ammo += Math.ceil(GUNS[p.gun].ammo / 2); pop(k.x, k.y - 26, '+MUNITIONS', '#f2c230'); }
+    else if (k.type === 'speed') { p.speedT = 10; pop(k.x, k.y - 26, 'VITESSE !', '#6ef0ff'); }
     else if (MELEE[k.type]) { p.melee = k.type; pop(k.x, k.y - 26, MELEE[k.type].n, '#6ef0ff'); }
     else { p.gun = k.type; p.ammo = GUNS[k.type].ammo; pop(k.x, k.y - 26, GUNS[k.type].n, '#f2c230'); }
   });
@@ -744,6 +891,7 @@ function drawPickup(k) {
   ctx.globalCompositeOperation = 'lighter'; disc(ctx, x, y, 10, 'rgba(120,255,140,.10)'); disc(ctx, x, y, 6, 'rgba(120,255,140,.13)'); ctx.globalCompositeOperation = 'source-over';
   if (t === 'med') { R(ctx, x - 6, y - 4, 13, 10, '#f6f0e4'); R(ctx, x - 6, y + 5, 13, 1, '#b9b0a4'); R(ctx, x - 1, y - 2, 3, 6, '#e0354b'); R(ctx, x - 3, y, 7, 2, '#e0354b'); R(ctx, x - 2, y - 6, 5, 2, '#b9b0a4'); }
   else if (t === 'ammo') { R(ctx, x - 6, y - 3, 12, 8, '#4a5a34'); R(ctx, x - 6, y - 3, 12, 1, '#6a7e4a'); R(ctx, x - 4, y, 2, 4, '#f2c230'); R(ctx, x - 1, y, 2, 4, '#f2c230'); R(ctx, x + 2, y, 2, 4, '#f2c230'); }
+  else if (t === 'speed') { [[1, -6, 4], [-1, -3, 4], [-3, 0, 8], [0, 2, 4], [-2, 5, 3]].forEach(([dx, dy, w]) => R(ctx, x + dx, y + dy, w, 3, '#6ef0ff')); R(ctx, x + 1, y - 6, 2, 3, '#fff'); R(ctx, x - 3, y, 3, 2, '#fff'); }
   else if (MELEE[t]) { const m = MELEE[t]; for (let i = 0; i < 12; i++) R(ctx, x - 6 + i, y + 5 - i, 2, 2, i < 3 ? '#5a4028' : m.col); R(ctx, x + 4, y - 7, 3, 3, m.tip); if (t === 'hache') R(ctx, x + 1, y - 8, 6, 5, m.tip); }
   else { const g = GUNS[t], l = g.len + 3; R(ctx, x - (l >> 1), y - 1, l, 2, g.col); R(ctx, x - (l >> 1), y - 1, l, 1, shade(g.col, 1.3)); R(ctx, x + (l >> 1) - 3, y + 1, 3, 3, '#5a4028'); if (g.len > 8) R(ctx, x - 1, y + 1, 2, 3, shade(g.col, .6)); }
 }
@@ -755,6 +903,7 @@ function drawPlayer() {
   if (p.st === 'ladder') { blit(heroS[fr], x, y, (p.walk | 0) % 2, 7); return; }
   blit(heroS[fr], x, y, d < 0, 7);
   const HR = (dx, dy, w, h, col) => R(ctx, d > 0 ? x + dx : x - dx - w, y + dy, w, h, col);
+  if (p.speedT > 0 && (p.speedT > 2 || (time * 8 | 0) % 2)) { HR(-12, 5, 7, 1, '#6ef0ff'); HR(-15, 10, 9, 1, '#6ef0ff'); HR(-11, 15, 6, 1, '#6ef0ff'); }
   if (p.ammo > 0) {
     const g = GUNS[p.gun]; HR(6, 7, g.len, 2, g.col); HR(6, 7, g.len, 1, shade(g.col, 1.3)); HR(6, 9, 1, 2, '#3a2a1e'); if (g.len > 8) HR(9, 9, 2, 2, shade(g.col, .6));
     if (p.flash > 0 && !g.flame && !g.beam) { HR(6 + g.len, 6, 3, 3, '#f2c230'); HR(7 + g.len, 7, 4, 1, '#fff'); }
@@ -773,6 +922,7 @@ function hud() {
   for (let i = 0; i < 10; i++) if (p.hp > i * 10) R(ctx, m + 17 + i * 6, 12, 5, 5, p.hp <= 30 ? '#ff7a3a' : '#e0354b');
   txt(ctx, p.ammo > 0 ? GUNS[p.gun].n + ' ' + p.ammo : MELEE[p.melee].n, m, 24, 1, '#f2c230');
   if (p.ammo > 0) txt(ctx, MELEE[p.melee].n, m, 33, 1, '#8a94a8');
+  if (p.speedT > 0) { txt(ctx, 'VITESSE', m, 43, 1, '#6ef0ff'); R(ctx, m + 31, 43, 42, 5, '#000'); R(ctx, m + 32, 44, 40 * p.speedT / 10, 3, '#6ef0ff'); }
   txt(ctx, (li + 1) + '/' + LEVELS.length + ' ' + L.name, VW - m, 12, 1, '#fff', 2); txt(ctx, 'ZOMBIES ' + kills, VW - m, 24, 1, '#fff', 2);
   txt(ctx, SV.coins, VW - m, 34, 1, '#f2c230', 2); coin(VW - m - String(SV.coins).length * 4 - 5, 36);
   R(ctx, VW / 2 + 76, 9, 13, 11, 'rgba(0,0,0,.5)'); R(ctx, VW / 2 + 79, 11, 2, 7, '#fff'); R(ctx, VW / 2 + 84, 11, 2, 7, '#fff');
@@ -802,6 +952,7 @@ function weather(cx) {
   if (w === 'rain') for (let i = 0; i < 60; i++) { const rx = (((i * 53 - time * 60 - cx * 1.2) % VW) + VW) % VW, ry = (i * 131 + time * 430) % 236; R(ctx, rx, ry, 1, 5, 'rgba(160,190,255,.3)'); }
   else if (w === 'snow') for (let i = 0, n = L.heavy ? 150 : 70; i < n; i++) { const rx = (((i * 37 + Math.sin(time + i) * 8 - cx * .6 - time * (L.heavy ? 90 : 10)) % VW) + VW) % VW, ry = (i * 71 + time * (30 + i % 3 * 12)) % 262; R(ctx, rx, ry, 1 + (i % 4 === 0), 1 + (i % 4 === 0), 'rgba(255,255,255,.8)'); }
   else if (w === 'sand') for (let i = 0; i < 40; i++) { const rx = (((i * 91 + time * 300 - cx) % VW) + VW) % VW; R(ctx, rx, (i * 29) % 250, 9, 1, 'rgba(240,210,150,.22)'); }
+  else if (w === 'leaves') for (let i = 0; i < 46; i++) { const rx = (((i * 47 + Math.sin(time * 1.5 + i) * 14 - cx * .7 - time * 14) % VW) + VW) % VW, ry = (i * 67 + time * (22 + i % 4 * 8)) % 262; R(ctx, rx, ry, 2, 1 + (i % 3 === 0), ['#e8a030', '#d8622a', '#b83a24', '#e8c040'][i % 4]); }
   if (L.fog) { R(ctx, 0, 110, VW, 120, 'rgba(170,180,190,.09)'); R(ctx, 0, 160, VW, 70, 'rgba(170,180,190,.09)'); }
 }
 function overlay(a) { ctx.fillStyle = `rgba(8,5,18,${a})`; ctx.fillRect(0, 0, VW, H); }
@@ -909,7 +1060,7 @@ function drawTitle() {
   ctx.drawImage(TF, 0, 0);
   const sc = VW >= 520 ? 6 : 4;
   txt(ctx, 'ZOMBIETOWN', VW - 14, 20, sc, '#5a1d58', 2, false); txt(ctx, 'ZOMBIETOWN', VW - 16, 18, sc, '#f08a3c', 2);
-  txt(ctx, '15 NIVEAUX AUTOUR DU MONDE', VW - 16, 24 + sc * 5, 1, '#e9dfd2', 2);
+  txt(ctx, LEVELS.length + ' NIVEAUX AUTOUR DU MONDE', VW - 16, 24 + sc * 5, 1, '#e9dfd2', 2);
   titleButtons().forEach((b, i) => {
     const pulse = i === 0 && (t * 2 | 0) % 2;
     R(ctx, b.x - pulse, b.y - pulse, b.w + pulse * 2, b.h + pulse * 2, pulse ? '#fff' : '#000'); R(ctx, b.x + 2, b.y + 2, b.w - 4, b.h - 4, b.col); R(ctx, b.x + 2, b.y + 2, b.w - 4, 2, shade(b.col, 1.4)); R(ctx, b.x + 2, b.y + b.h - 5, b.w - 4, 3, shade(b.col, .7));
