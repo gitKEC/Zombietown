@@ -113,7 +113,9 @@ const BOSSES = [
   { n: 'LE BOUCHER', hp: 80, sc: 2, sp: 20, dmg: 14, charge: true, pal: zpal('#8fae6a', '#e9e9e0', '#e9e9e0', '#b01c2c', '#3a3340') },
   { n: 'LE CRACHEUR', hp: 120, sc: 2, sp: 16, dmg: 12, spit: true, summon: true, pal: zpal('#a8d84a', '#a8d84a', '#6a8a2a', '#4a6a1a', '#3a4a2a', '#fff06a') },
   { n: 'LE COMTE', hp: 150, sc: 2, sp: 24, dmg: 14, charge: true, summon: true, pal: zpal('#d8d0e0', '#15131c', '#2a1030', '#b01c2c', '#15131c') },
-  { n: 'PATIENT ZERO', hp: 190, sc: 3, sp: 22, dmg: 18, charge: true, spit: true, summon: true, pal: zpal('#c8d0e0', '#c8d0e0', '#3a3a5a', '#7a1c24', '#22223a', '#6ef0ff') },
+  { n: 'PATIENT ZERO', hp: 240, sc: 3, sp: 22, dmg: 18, charge: true, spit: true, summon: true, pal: zpal('#c8d0e0', '#c8d0e0', '#3a3a5a', '#7a1c24', '#22223a', '#6ef0ff') },
+  { n: 'LE GEANT', hp: 200, sc: 3, sp: 13, dmg: 20, charge: true, pal: zpal('#8fae6a', '#5a4a3a', '#4a5a7a', '#2a3a5a', '#2a2a3a') },
+  { n: 'LA REINE', hp: 220, sc: 2, sp: 25, dmg: 15, charge: true, spit: true, summon: true, pal: zpal('#c8a8d8', '#e0c040', '#8a2a6a', '#c9a23a', '#5a1a4a', '#ff6ec7') },
 ];
 const GUNS = {
   pistol: { n: 'PISTOLET', cd: .3, dmg: 2, pierce: 1, ammo: 18, len: 4, col: '#9aa2b4' },
@@ -156,11 +158,11 @@ const WARM = 'rgba(255,170,80,.075)', COOL = 'rgba(120,170,255,.07)', PALE = 'rg
 const LEVELS = [
   { name: 'BRONX', sub: 'COUCHER DU SOLEIL', kind: 'city', len: 2300, seed: 11, sky: SK.sunset, stars: 40, sun: { x: 250, y: 112, r: 24, c1: '#ffd98a', c2: '#fff0c0', bars: '#e06a3c' },
     far: { t: 'sky', c: ['#4a1c5c', '#2a1244'], win: ['#fbc468', '#f39a44'] }, mid: { t: 'city', c: '#3d1a50', lo: 50, hi: 120, lit: .25, win: ['#f8b85a', '#f39a44'] },
-    bricks: ['#7d3a35', '#8f6a48', '#5e3b41'], tops: [25, 60], lit: .3, win: '#f2b24a', glass: '#171530', glow: WARM, side: '#6b6878', road: '#22202c', shops: ['DELI', 'PIZZA', 'BAR', '24H'], taxi: true, zp: 'city',
+    bricks: ['#7d3a35', '#8f6a48', '#5e3b41'], tops: [25, 60], lit: .3, win: '#f2b24a', glass: '#171530', glow: WARM, side: '#6b6878', road: '#22202c', shops: ['DELI', 'PIZZA', 'BAR', '24H'], taxi: true, zp: 'city', mix: ['ten', 'ten', 'brown', 'lot', 'ware', 'alley', 'ten', 'church', 'brown'],
     picks: ['shotgun', 'med', 'ammo', 'med'] },
   { name: 'MANHATTAN', sub: 'NUIT', kind: 'city', len: 2600, seed: 29, weather: 'rain', sky: SK.night, stars: 130, sun: { x: 330, y: 44, r: 14, c1: '#cfd6ee', c2: '#eef1fb', moon: true },
     far: { t: 'sky', c: ['#141a44', '#0c1030'], win: ['#ffd46a', '#6ad0ff'], lo: 30 }, mid: { t: 'city', c: '#161a40', lo: 0, hi: 90, lit: .42, win: ['#ffd46a', '#ffe9a8', '#6ad0ff'] },
-    bricks: ['#3d3550', '#4a3a4a', '#2f3a54'], tops: [-30, 30], lit: .45, win: '#ffd46a', glass: '#0c0e24', glow: COOL, side: '#4a4c62', road: '#14141e', shops: ['DELI', 'JAZZ', 'BAR', 'TATTOO'], taxi: true, zp: 'city',
+    bricks: ['#3d3550', '#4a3a4a', '#2f3a54'], tops: [-30, 30], lit: .45, win: '#ffd46a', glass: '#0c0e24', glow: COOL, side: '#4a4c62', road: '#14141e', shops: ['DELI', 'JAZZ', 'BAR', 'TATTOO'], taxi: true, zp: 'city', mix: ['glass', 'deco', 'ten', 'brown', 'glass', 'alley', 'deco'], tint: '#2a3a6a',
     picks: ['uzi', 'med', 'machette', 'ammo'] },
   { name: 'ZONE 51', sub: 'PLEIN JOUR', kind: 'base', len: 2800, seed: 51, sky: SK.day, stars: 0, sun: { x: 300, y: 36, r: 11, c1: '#fff6c8', c2: '#ffffff', halo: true }, clouds: true,
     far: { t: 'hills', c: ['#b0a0c0', '#c9a88e'] }, mid: { t: 'mesa' }, metal: '#7d8478', signs: ['DANGER', 'ZONE 51'], glow: PALE, side: '#a89e88', road: '#3a3833', dash: '#d9b030', saucer: true, zp: 'base',
@@ -171,7 +173,7 @@ const LEVELS = [
     picks: ['magnum', 'med', 'arbalete', 'ammo'] },
   { name: 'LONDRES', sub: 'NUIT DE PLUIE', kind: 'city', len: 1700, seed: 44, boss: 0, weather: 'rain', fog: true, sky: SK.london, stars: 0, sun: { x: 120, y: 50, r: 12, c1: '#7a8694', c2: '#98a4b0', moon: true },
     far: { t: 'sky', c: ['#26303e', '#1a222e'], win: ['#e8c870', '#e8c870'], mark: 'bigben' }, mid: { t: 'city', c: '#222a38', lo: 70, hi: 130, lit: .2, win: ['#e8c870'] },
-    bricks: ['#5a3a34', '#4a342e', '#6a4a3a'], tops: [30, 70], lit: .3, win: '#e8c870', glass: '#10141c', glow: WARM, side: '#555a64', road: '#1a1c22', shops: ['PUB', 'TEA', 'BOOKS', 'FISH'], phone: true, zp: 'city',
+    bricks: ['#5a3a34', '#4a342e', '#6a4a3a'], tops: [30, 70], lit: .3, win: '#e8c870', glass: '#10141c', glow: WARM, side: '#555a64', road: '#1a1c22', shops: ['PUB', 'TEA', 'BOOKS', 'FISH'], phone: true, zp: 'city', mix: ['brown', 'brown', 'ten', 'church', 'alley', 'brown'],
     picks: ['ak47', 'med', 'lancegrenades', 'ammo', 'med'] },
   { name: 'LE CAIRE', sub: 'MIDI', kind: 'ruins', len: 2700, seed: 6, weather: 'sand', sky: SK.noon, stars: 0, sun: { x: 240, y: 30, r: 12, c1: '#fff6c8', c2: '#ffffff', halo: true },
     far: { t: 'hills', c: ['#e8d09c', '#d4b478'], mark: 'pyramids' }, mid: { t: 'hills', band: '#dcb474', hill: '#cca060', deco: ['palm', 'palm', 'cactus'] },
@@ -183,19 +185,19 @@ const LEVELS = [
     picks: ['arbalete', 'med', 'uzi', 'ammo'] },
   { name: 'TOKYO', sub: 'NUIT NEON', kind: 'city', len: 2800, seed: 8, weather: 'rain', sky: SK.neon, stars: 30, sun: { x: 420, y: 40, r: 10, c1: '#e8d8f8', c2: '#ffffff', moon: true },
     far: { t: 'sky', c: ['#241450', '#160c38'], win: ['#ff6ec7', '#6ef0ff'], lo: 40, mark: 'tokyo' }, mid: { t: 'city', c: '#1e1248', lo: 10, hi: 100, lit: .5, win: ['#ff6ec7', '#6ef0ff', '#ffe14a'] },
-    bricks: ['#3a3a4e', '#44384e', '#2e3a4a'], neon: true, tops: [-20, 40], lit: .4, win: '#ffe9a8', glass: '#0c0e24', glow: 'rgba(255,110,200,.06)', side: '#4a4860', road: '#16141e', shops: ['RAMEN', 'SUSHI', 'SAKE', 'ARCADE'], zp: 'city',
+    bricks: ['#3a3a4e', '#44384e', '#2e3a4a'], neon: true, tops: [-20, 40], lit: .4, win: '#ffe9a8', glass: '#0c0e24', glow: 'rgba(255,110,200,.06)', side: '#4a4860', road: '#16141e', shops: ['RAMEN', 'SUSHI', 'SAKE', 'ARCADE'], zp: 'city', mix: ['ten', 'glass', 'ten', 'alley', 'glass', 'ten'], tint: '#2a2050',
     picks: ['katana', 'med', 'minigun', 'ammo'] },
   { name: 'MOSCOU', sub: 'NUIT DE NEIGE', kind: 'city', len: 2800, seed: 1917, weather: 'snow', snow: true, sky: SK.snow, stars: 50, sun: { x: 380, y: 46, r: 12, c1: '#cfd6ee', c2: '#eef1fb', moon: true },
     far: { t: 'sky', c: ['#2a3658', '#1c2644'], win: ['#ffd46a', '#ffd46a'], lo: 90, mark: 'domes' }, mid: { t: 'city', c: '#243050', lo: 60, hi: 120, lit: .3, win: ['#ffd46a'] },
-    bricks: ['#6a3a3a', '#7a6a5a', '#4a4a5a'], tops: [20, 60], lit: .35, win: '#ffd46a', glass: '#141a30', glow: COOL, side: '#c8d0dc', road: '#5a6270', shops: ['VODKA', 'KAFE', 'BAR'], zp: 'city',
+    bricks: ['#6a3a3a', '#7a6a5a', '#4a4a5a'], tops: [20, 60], lit: .35, win: '#ffd46a', glass: '#141a30', glow: COOL, side: '#c8d0dc', road: '#5a6270', shops: ['VODKA', 'KAFE', 'BAR'], zp: 'city', mix: ['panel', 'panel', 'ten', 'church', 'lot', 'panel'], panel: '#9a9ca4',
     picks: ['ak47', 'med', 'sniper', 'ammo'] },
   { name: 'TCHERNOBYL', sub: 'CREPUSCULE', kind: 'base', len: 1700, seed: 86, boss: 1, fog: true, sky: SK.grey, stars: 0, sun: { x: 400, y: 130, r: 14, c1: '#c8b888', c2: '#d8cca0' },
     far: { t: 'hills', c: ['#5a5e52', '#4a4e44'], mark: 'chernobyl' }, mid: { t: 'hills', band: '#5a5a48', hill: '#4a4c3e', deco: ['dead', 'dead', 'pine'] },
     metal: '#6a6e66', signs: ['DANGER', 'RADIATION'], glow: PALE, side: '#7a7a70', road: '#34342e', dash: '#8a8460', zp: 'hazmat',
     picks: ['lanceflammes', 'med', 'shotgun', 'ammo', 'med'] },
-  { name: 'RIO', sub: 'FIN DE JOURNEE', kind: 'city', len: 2900, seed: 22, sky: SK.dusk, stars: 10, sun: { x: 300, y: 130, r: 22, c1: '#ffd98a', c2: '#fff0c0', bars: '#e07060' },
+  { name: 'RIO', sub: 'FAVELA AU COUCHANT', kind: 'slum', dirt: '#8a5a3a', roofC: '#8a8a90', natural: true, dash: null, shacks: ['#d86a4a', '#e0b040', '#4a9ab0', '#d06a8a', '#6ab06a', '#c8643a', '#e8d8c0'], len: 2900, seed: 22, sky: SK.dusk, stars: 10, sun: { x: 300, y: 130, r: 22, c1: '#ffd98a', c2: '#fff0c0', bars: '#e07060' },
     far: { t: 'hills', c: ['#6a3a70', '#4a2858'], mark: 'rio' }, mid: { t: 'city', c: '#5a3068', lo: 112, hi: 150, lit: .4, win: ['#ffd46a', '#f39a44'] },
-    bricks: ['#d86a4a', '#e0b040', '#4a9ab0', '#d06a8a', '#6ab06a'], tops: [70, 110], lit: .35, win: '#ffd46a', glass: '#2a2a4a', glow: WARM, side: '#8a7a78', road: '#2e2a30', shops: ['BAR', 'SUCO', 'SAMBA'], zp: 'city',
+    lit: .35, win: '#ffd46a', glass: '#2a2a4a', glow: WARM, side: '#8a7a62', road: '#4a3a30', signs: ['BAR', 'SUCO', 'SAMBA', 'CAFE'], zp: 'city',
     picks: ['uzi', 'med', 'lancegrenades', 'ammo'] },
   { name: 'AMAZONIE', sub: 'JOUR', kind: 'ruins', len: 2900, seed: 33, weather: 'rain', sky: SK.jungle, stars: 0, sun: { x: 200, y: 40, r: 11, c1: '#fff6c8', c2: '#ffffff', halo: true },
     far: { t: 'hills', c: ['#3a7a5a', '#2a6048'] }, mid: { t: 'hills', band: '#2a5a38', hill: '#245030', deco: ['tree', 'tree', 'tree', 'palm'], dense: true },
@@ -203,7 +205,7 @@ const LEVELS = [
     picks: ['tronconneuse', 'med', 'arbalete', 'ammo'] },
   { name: 'SYDNEY', sub: 'MATIN', kind: 'city', len: 3000, seed: 61, sky: SK.noon, stars: 0, sun: { x: 120, y: 50, r: 12, c1: '#fff6c8', c2: '#ffffff', halo: true }, clouds: true,
     far: { t: 'sky', c: ['#8ab0d0', '#6a94bc'], win: ['#e8f4ff', '#e8f4ff'], lo: 100, hi: 150, mark: 'sydney' }, mid: { t: 'city', c: '#7a9cc0', lo: 40, hi: 120, lit: .08, win: ['#e8f4ff'] },
-    bricks: ['#c8b8a0', '#b0a8a0', '#d0a888'], tops: [30, 70], lit: .05, win: '#ffe9a8', glass: '#4a7aa8', glow: PALE, side: '#9a98a0', road: '#3a3a42', shops: ['SURF', 'CAFE', 'PUB', 'BBQ'], zp: 'city',
+    bricks: ['#c8b8a0', '#b0a8a0', '#d0a888'], tops: [30, 70], lit: .05, win: '#ffe9a8', glass: '#4a7aa8', glow: PALE, side: '#9a98a0', road: '#3a3a42', shops: ['SURF', 'CAFE', 'PUB', 'BBQ'], zp: 'city', mix: ['glass', 'deco', 'brown', 'ten', 'lot', 'glass'], tint: '#5a8ab8', deco: '#e0d4bc',
     picks: ['sniper', 'med', 'minigun', 'ammo'] },
   { name: 'SIBERIE', sub: 'BLIZZARD', kind: 'base', len: 3000, seed: 77, weather: 'snow', heavy: true, snow: true, sky: SK.blizzard, stars: 0, sun: { x: 300, y: 60, r: 10, c1: '#d0d8e0', c2: '#e8eef4' },
     far: { t: 'hills', c: ['#8a98a8', '#a8b4c0'] }, mid: { t: 'hills', band: '#d0d8e0', hill: '#b8c4d0', deco: ['pine', 'pine', 'pine'], snow: true },
@@ -233,8 +235,48 @@ const NEWLV = [
     far: { t: 'hills', c: ['#8a7a9a', '#6a6a8a'], mark: 'fuji' }, mid: { t: 'hills', band: '#4a7a4a', hill: '#3e6a44', deco: ['tree', 'tree', 'pine'], dense: true },
     tree: 'bamboo', trunk: '#5a9a4a', leaf: ['#7ac05a', '#5aa04a', '#9ad06a'], side: '#6a7a58', road: '#8a8070', picks: ['katana', 'med', 'laser', 'ammo'] },
 ];
-{ const all = LEVELS.concat(NEWLV); LEVELS.length = 0;
-  ['BRONX', 'MANHATTAN', 'ZONE 51', 'PARIS', 'LONDRES', 'LE CAIRE', 'ROME', 'FORET-NOIRE', 'TOKYO', 'TCHERNOBYL', 'MOSCOU', 'RIO', 'AMAZONIE', 'CANADA', 'TRANSYLVANIE', 'SYDNEY', 'SIBERIE', 'CALIFORNIE', 'KYOTO', 'ANTARCTIQUE'].forEach(n => LEVELS.push(all.find(l => l.name === n)));
+const MORE = [
+  { name: 'OHIO', sub: 'BANLIEUE - APRES-MIDI', kind: 'suburb', style: 'ohio', len: 2700, seed: 1803, sky: SK.day, clouds: true, stars: 0, sun: { x: 420, y: 44, r: 11, c1: '#fff6c8', c2: '#ffffff', halo: true },
+    far: { t: 'hills', c: ['#9ab0b8', '#7a9a84'] }, mid: { t: 'hills', band: '#5a8a4a', hill: '#4a7a44', deco: ['tree', 'tree', 'pine'] },
+    houses: ['#e8d8b0', '#b8d0e0', '#d8b8c8', '#c8d8b0', '#f0e8d8', '#a8b8c8'], roofs: ['#5a4a4a', '#4a4a5a', '#6a3a34', '#3a4a3a'], lit: .1, win: '#ffe9a8', glass: '#3a5a7a', glow: PALE, side: '#a8a8a0', road: '#3a3a40', zp: 'city',
+    picks: ['shotgun', 'med', 'machette', 'ammo'] },
+  { name: 'COTSWOLDS', sub: 'VILLAGE ANGLAIS SOUS LA PLUIE', kind: 'suburb', style: 'cottage', len: 2700, seed: 1120, weather: 'rain', phone: true, sky: ['#5a6470', '#6a7480', '#7a848e', '#8a949c', '#9aa2a8', '#aab0b4'], stars: 0, sun: { x: 200, y: 50, r: 10, c1: '#c8ccd0', c2: '#dde0e4' },
+    far: { t: 'hills', c: ['#7a9a7a', '#5a7a5a'] }, mid: { t: 'hills', band: '#4a7a3a', hill: '#3e6a34', deco: ['tree', 'tree', 'tree'] },
+    lit: .3, win: '#ffd88a', glass: '#2a3440', glow: WARM, side: '#7a7a70', road: '#3a3a38', dash: null, zp: 'city', picks: ['arbalete', 'med', 'hache', 'ammo'] },
+  { name: 'MUMBAI', sub: 'BIDONVILLE - MOUSSON', kind: 'slum', len: 2800, seed: 1995, weather: 'rain', sky: ['#3a4a5a', '#4a5a6a', '#5a6a78', '#6a7a86', '#7a8a94', '#8a98a0'], stars: 0, sun: { x: 300, y: 60, r: 10, c1: '#c8ccd0', c2: '#dde0e4' },
+    far: { t: 'sky', c: ['#4a5866', '#3a4654'], win: ['#e8d8a0', '#e8d8a0'], lo: 60 }, mid: { t: 'city', c: '#3e4a58', lo: 40, hi: 110, lit: .15, win: ['#e8d8a0'] },
+    shacks: ['#2a6ab0', '#5a8ac0', '#c8b8a0', '#a8a49c', '#e0c060', '#6a9a8a'], dirt: '#6a5a4a', roofC: '#7a7a80', tarp: '#2a6ab0', signs: ['CHAI', 'TEL', 'SODA', 'PAN'], natural: true,
+    lit: .2, win: '#ffd88a', glass: '#1a2028', glow: WARM, side: '#7a6a58', road: '#4a3e34', dash: null, zp: 'city', picks: ['uzi', 'med', 'machette', 'ammo'] },
+  { name: 'CHICAGO', sub: 'VENT GLACIAL', kind: 'city', len: 2900, seed: 1871, weather: 'snow', snow: true, sky: SK.dusk, stars: 10, sun: { x: 140, y: 130, r: 18, c1: '#ffd98a', c2: '#fff0c0' },
+    far: { t: 'sky', c: ['#5a4a6a', '#3a3050'], win: ['#ffd46a', '#ffd46a'], lo: 20 }, mid: { t: 'city', c: '#3a3258', lo: 0, hi: 80, lit: .4, win: ['#ffd46a'] },
+    mix: ['ware', 'ware', 'deco', 'ten', 'glass', 'lot', 'brown'], bricks: ['#8a4a3a', '#7a5a4a', '#6a3a34'], tops: [0, 50], lit: .35, win: '#ffd46a', glass: '#1c2440', tint: '#4a6a8a', deco: '#c8b898',
+    wareSigns: ['STOCKYARD', 'STEEL CO', 'RAIL DEPOT', 'MEAT CO'], glow: WARM, side: '#c8ccd4', road: '#4a4c56', shops: ['DINER', 'PIZZA', 'BAR', 'HOT DOG'], taxi: true, zp: 'city', picks: ['ak47', 'med', 'shotgun', 'ammo'] },
+  { name: 'DETROIT', sub: 'USINES ABANDONNEES', kind: 'city', len: 1800, seed: 1701, boss: 4, fog: true, sky: SK.grey, stars: 0, sun: { x: 400, y: 120, r: 14, c1: '#c8b888', c2: '#d8cca0' },
+    far: { t: 'sky', c: ['#5a5a54', '#4a4a46'], win: ['#c8b870', '#c8b870'], lo: 60 }, mid: { t: 'city', c: '#4a4a48', lo: 40, hi: 110, lit: .05, win: ['#c8b870'] },
+    mix: ['ware', 'ware', 'ten', 'lot', 'church', 'ware', 'lot'], specials: ['gar', 'gas'], bricks: ['#6a3a30', '#5a4038', '#4a3a3a'], tops: [40, 80], lit: .06, win: '#e8c870', glass: '#1a1a20',
+    wareSigns: ['PLANT 4', 'FOUNDRY', 'ASSEMBLY', 'MOTOR CO'], glow: PALE, side: '#6a6a64', road: '#2e2e2c', shops: ['PAWN', 'LIQUOR', 'BAR'], zp: 'city', picks: ['minigun', 'med', 'lancegrenades', 'ammo', 'med'] },
+  { name: 'BEVERLY HILLS', sub: 'VILLAS DE STARS', kind: 'suburb', style: 'mansion', len: 3000, seed: 1914, sky: SK.noon, stars: 0, sun: { x: 150, y: 40, r: 12, c1: '#fff6c8', c2: '#ffffff', halo: true },
+    far: { t: 'hills', c: ['#c8a888', '#a8906a'], mark: 'hollywood' }, mid: { t: 'hills', band: '#7a9a5a', hill: '#6a8a4a', deco: ['palm', 'palm', 'tree'] },
+    lit: .05, win: '#ffe9a8', glass: '#4a7aa8', glow: PALE, side: '#d8d0c0', road: '#4a4a50', zp: 'city', picks: ['magnum', 'med', 'katana', 'ammo'] },
+  { name: 'LAS VEGAS', sub: 'NUIT DE NEON', kind: 'city', len: 3000, seed: 1905, sky: SK.neon, stars: 40, sun: { x: 440, y: 40, r: 10, c1: '#e8d8f8', c2: '#ffffff', moon: true },
+    far: { t: 'sky', c: ['#2a1650', '#1a0e38'], win: ['#ff6ec7', '#ffe14a'], lo: 60, mark: 'strat' }, mid: { t: 'city', c: '#24145a', lo: 30, hi: 110, lit: .55, win: ['#ff6ec7', '#6ef0ff', '#ffe14a'] },
+    mix: ['casino', 'glass', 'ten', 'casino', 'deco', 'lot'], specials: ['gas', 'scaf', 'gar'], neon: true, bricks: ['#4a3a4e', '#3a3a52', '#52384a'], tops: [0, 50], lit: .5, win: '#ffe9a8', glass: '#140c30', tint: '#3a2a6a', deco: '#d8c8a8',
+    glow: 'rgba(255,110,200,.06)', side: '#4a4860', road: '#16141e', shops: ['BAR', '24H', 'POKER', 'BUFFET'], zp: 'city', picks: ['minigun', 'med', 'uzi', 'ammo'] },
+  { name: 'LE CAP', sub: 'TOWNSHIP AU COUCHANT', kind: 'slum', len: 2900, seed: 1652, sky: SK.sunset, stars: 20, sun: { x: 200, y: 126, r: 20, c1: '#ffd98a', c2: '#fff0c0', bars: '#e06a3c' },
+    far: { t: 'hills', c: ['#5a3a6a', '#4a2e58'], mark: 'table' }, mid: { t: 'hills', band: '#6a4a4a', hill: '#5a3e46', deco: ['tree', 'dead'] },
+    shacks: ['#8a8a8a', '#a8a8a0', '#c2564a', '#4a7ab0', '#e0c060', '#6a9a6a', '#9a7a5a'], dirt: '#8a5a3a', roofC: '#9a9aa0', signs: ['SPAZA', 'SHOP', 'BAR', 'TEL'], natural: true,
+    lit: .25, win: '#ffd88a', glass: '#2a2030', glow: WARM, side: '#9a7a5a', road: '#5a4030', dash: null, zp: 'city', picks: ['ak47', 'med', 'hache', 'ammo'] },
+  { name: 'DUBAI', sub: 'TEMPETE DE SABLE', kind: 'city', len: 1800, seed: 1971, boss: 5, weather: 'sand', sky: SK.noon, stars: 0, sun: { x: 300, y: 36, r: 12, c1: '#fff6c8', c2: '#ffffff', halo: true },
+    far: { t: 'sky', c: ['#b8c8d8', '#9ab0c8'], win: ['#e8f4ff', '#e8f4ff'], lo: 110, hi: 160, mark: 'burj' }, mid: { t: 'city', c: '#a8bcd0', lo: 50, hi: 130, lit: .05, win: ['#e8f4ff'] },
+    mix: ['glass', 'glass', 'deco', 'lot', 'glass'], specials: ['gas', 'scaf'], bricks: ['#d8c8a8', '#c8b898', '#e0d0b4'], tops: [-20, 40], lit: .05, win: '#ffe9a8', glass: '#4a7aa8', tint: '#6a9ac8', deco: '#e0d0b0',
+    glow: PALE, side: '#d8c8a8', road: '#5a5450', shops: ['GOLD', 'CAFE', 'MALL', 'SOUK'], zp: 'mummy', picks: ['laser', 'med', 'sniper', 'ammo', 'med'] },
+  { name: 'MANILLE', sub: 'BIDONVILLE DE NUIT', kind: 'slum', len: 3000, seed: 1571, weather: 'rain', sky: SK.night, stars: 60, sun: { x: 400, y: 44, r: 12, c1: '#cfd6ee', c2: '#eef1fb', moon: true },
+    far: { t: 'sky', c: ['#1a2048', '#121838'], win: ['#ff6ec7', '#ffe14a'], lo: 50 }, mid: { t: 'city', c: '#161a40', lo: 30, hi: 100, lit: .4, win: ['#ffd46a', '#ff6ec7'] },
+    shacks: ['#3a5a8a', '#5a4a6a', '#8a3a3a', '#4a6a4a', '#7a6a3a', '#5a5a6a'], dirt: '#2a2430', roofC: '#5a5a68', signs: ['KARAOKE', 'SARI', 'BAR', 'LOAD'], neonSigns: true, natural: true,
+    lit: .45, win: '#ffd46a', glass: '#0c0e24', glow: COOL, side: '#3a3a48', road: '#1a1a24', dash: null, zp: 'city', picks: ['katana', 'med', 'lanceflammes', 'ammo'] },
+];
+{ const all = LEVELS.concat(NEWLV, MORE); LEVELS.length = 0;
+  ['BRONX', 'MANHATTAN', 'OHIO', 'PARIS', 'LONDRES', 'ZONE 51', 'LE CAIRE', 'FORET-NOIRE', 'COTSWOLDS', 'TCHERNOBYL', 'ROME', 'MUMBAI', 'TOKYO', 'CANADA', 'TRANSYLVANIE', 'MOSCOU', 'RIO', 'CHICAGO', 'AMAZONIE', 'DETROIT', 'BEVERLY HILLS', 'LAS VEGAS', 'KYOTO', 'LE CAP', 'DUBAI', 'SYDNEY', 'MANILLE', 'CALIFORNIE', 'SIBERIE', 'ANTARCTIQUE'].forEach(n => LEVELS.push(all.find(l => l.name === n)));
   LEVELS.forEach(l => l.picks.splice(2, 0, 'speed')); }
 
 /* ============ arrière-plans ============ */
@@ -266,6 +308,10 @@ function tower(g, cx, top, col, band) {
   const yb = top + (214 - top) * .62; R(g, cx - 13, yb, 27, 3, col); R(g, cx - 6, top + (214 - top) * .33, 13, 2, col); R(g, cx, top - 12, 1, 12, col);
 }
 const MARKS = {
+  hollywood: (g, c) => { const d = shade(c[0], .85); for (let x = 0; x < 512; x++) { const h = 100 + 24 * Math.sin(x / 70) | 0; R(g, x, h, 1, 214 - h, d); } txt(g, 'ZOMBIEWOOD', 256, 104, 4, '#f4f0e8', 1, false); for (let i = 0; i < 10; i++) R(g, 256 - 78 + i * 16 + 4, 124, 1, 8, '#d8d0c0'); },
+  table: (g, c) => { const d = shade(c[0], .9); for (let x = 0; x < 512; x++) { const t = x < 170 ? 92 + (170 - x) * .7 : x > 380 ? 92 + (x - 380) * .6 : 92 + Math.sin(x) * 1.5; R(g, x, t, 1, 214 - t, d); } for (let x = 180; x < 370; x += 3) R(g, x, 92, 2, 3, '#f4f0f8'); },
+  burj: (g, c) => { const d = shade(c[1], .78), l = shade(c[1], 1.12); for (let y = 8; y < 214; y++) { const t = (y - 8) / 206, hw = 1 + Math.round(t * 5) * 3; R(g, 300 - hw, y, hw * 2, 1, d); R(g, 300 - hw, y, Math.max(1, hw / 2 | 0), 1, l); } R(g, 300, 0, 1, 10, d); },
+  strat: g => { R(g, 150, 60, 6, 154, '#1a0e30'); R(g, 141, 48, 24, 14, '#1a0e30'); R(g, 143, 52, 20, 3, '#ff6ec7'); R(g, 152, 10, 2, 38, '#1a0e30'); R(g, 152, 8, 2, 2, '#ff3b3b'); for (let y = 120; y < 214; y++) { const h = (y - 120) * .9; R(g, 380 - h, y, h * 2, 1, '#120a28'); } R(g, 379, 0, 2, 120, 'rgba(255,255,255,.35)'); },
   eiffel: (g, c) => tower(g, 300, 14, shade(c[1], .8)),
   fuji: (g, c) => { for (let y = 60; y < 214; y++) { const h = (y - 60) * 1.7; R(g, 256 - h, y, h * 2, 1, y < 86 ? '#f4f0f8' : c[0]); } },
   castle: (g, c) => { const d = shade(c[1], .55); for (let y = 150; y < 214; y++) { const h = (y - 150) * 2.2 + 50; R(g, 300 - h, y, h * 2, 1, shade(c[1], .8)); } R(g, 272, 118, 58, 40, d); [[266, 100, 14], [322, 94, 14], [292, 78, 18]].forEach(([x, top, w]) => { R(g, x, top, w, 160 - top, d); for (let i = 0; i < w / 2 + 2; i++) R(g, x - 2 + i, top - i * 2, w + 4 - i * 2, 2, d); R(g, x + w / 2 - 1, top + 8, 2, 4, '#f2b24a'); }); for (let x = 272; x < 330; x += 6) R(g, x, 114, 3, 4, d); R(g, 296, 134, 3, 5, '#f2b24a'); },
@@ -513,6 +559,297 @@ function stoneWall(c, L, S, x, w, top) {
   if (L.moss) { for (let bx = x; bx < x + w; bx += 3) if (rnd() < .6) R(c, bx, top + 12 + rnd() * 6, 2, 3 + rnd() * 26, rnd() < .5 ? '#3a7a3a' : '#4a8a44'); }
 }
 
+/* ---------- nouveaux types de bâtiments ---------- */
+function win(c, L, x, y, w, h, frame = '#140f1c') {
+  R(c, x - 1, y - 1, w + 2, h + 2, frame);
+  if (rnd() < L.lit) { R(c, x, y, w, h, L.win); R(c, x, y, w, h * .3 | 0, shade(L.win, 1.2)); if (rnd() < .3 && w > 5) { R(c, x + (w >> 1) - 1, y + (h * .45 | 0), 3, h * .55 | 0, '#3a1d2a'); } }
+  else { R(c, x, y, w, h, L.glass); R(c, x + 1, y + 1, Math.max(1, w / 3 | 0), h * .4 | 0, shade(L.glass, 1.7)); }
+  if (h > 9) R(c, x, y + (h >> 1), w, 1, frame);
+}
+function brownstone(c, L, x, w, top, B) {
+  R(c, x, top, w, 210 - top, B.base);
+  for (let y = top + 2; y < 210; y += 4) R(c, x, y, w, 1, B.dark);
+  R(c, x, top, 2, 210 - top, B.light); R(c, x + w - 2, top, 2, 210 - top, 'rgba(0,0,0,.3)');
+  const cor = shade(B.base, .55); R(c, x - 3, top - 7, w + 6, 7, cor); R(c, x - 3, top - 7, w + 6, 1, shade(cor, 1.6)); for (let dx = x - 1; dx < x + w + 1; dx += 5) R(c, dx, top, 3, 3, cor);
+  if (L.snow) R(c, x - 3, top - 9, w + 6, 2, '#eef2f8');
+  const bw = 26, bx = x + 7, tr = shade(B.light, 1.15);
+  R(c, bx - 2, top + 8, bw + 4, 186 - top, B.light); R(c, bx + bw, top + 8, 2, 186 - top, B.dark);
+  for (let wy = top + 14; wy < 160; wy += 24) {
+    for (let k = 0; k < 3; k++) win(c, L, bx + 1 + k * 9, wy, 6, 15);
+    R(c, bx - 2, wy + 17, bw + 4, 2, tr);
+    for (let wx = bx + bw + 8; wx + 9 < x + w - 4; wx += 15) { win(c, L, wx, wy, 9, 15); R(c, wx - 2, wy - 3, 13, 2, tr); R(c, wx - 1, wy + 16, 11, 1, tr); }
+  }
+  R(c, bx, 196, bw, 10, '#140f1c'); for (let i = bx + 2; i < bx + bw; i += 3) R(c, i, 196, 1, 10, '#3a364a');
+  const dx = x + w - 24;
+  R(c, dx - 2, 163, 22, 3, B.light); R(c, dx, 166, 18, 26, shade(B.base, .5)); R(c, dx + 2, 168, 14, 24, pick(['#2a1a14', '#1e2a3a', '#3a1418'])); R(c, dx + 2, 168, 14, 3, L.win); R(c, dx + 12, 180, 2, 2, '#d9a441');
+  const sc = shade(B.base, 1.25);
+  for (let i = 0; i < 6; i++) { R(c, dx - (i + 1) * 5, 192 + i * 3, 18 + (i + 1) * 5, 3, i % 2 ? sc : shade(sc, .9)); R(c, dx - (i + 1) * 5, 185 + i * 3, 5, 1, '#15131c'); }
+  R(c, dx - 31, 185, 1, 25, '#15131c'); R(c, dx - 2, 170, 1, 22, '#15131c');
+}
+function glassTower(c, L, x, w, top) {
+  const g0 = L.tint || shade(L.glass, 2.2), fr = shade(g0, .55), hi = shade(g0, 1.4);
+  R(c, x, top, w, 182 - top, g0);
+  c.save(); c.beginPath(); c.rect(x, top, w, 182 - top); c.clip();
+  for (let y = top; y < 182; y++) R(c, x + ((y * .8) % (w + 50)) - 30, y, 16, 1, 'rgba(255,255,255,.09)');
+  c.restore();
+  for (let gy = top + 6; gy < 182; gy += 9) for (let gx = x + 3; gx < x + w - 4; gx += 8) if (rnd() < L.lit * .7) R(c, gx + 1, gy + 1, 6, 7, shade(L.win, .9));
+  for (let gx = x + 3; gx < x + w; gx += 8) R(c, gx, top, 1, 182 - top, fr);
+  for (let gy = top + 6; gy < 182; gy += 9) R(c, x, gy, w, 1, fr);
+  R(c, x, top, 2, 182 - top, hi); R(c, x + w - 3, top, 3, 182 - top, fr);
+  R(c, x - 2, top - 4, w + 4, 4, fr); if (rnd() < .5) { R(c, x + w / 2, top - 26, 1, 22, fr); R(c, x + w / 2, top - 27, 1, 1, '#ff3b3b'); }
+  R(c, x, 182, w, 28, '#1c2028'); R(c, x - 2, 180, w + 4, 3, '#a8b0bc');
+  for (let dx = x + 6; dx < x + w - 10; dx += 14) { R(c, dx, 188, 12, 22, shade(L.glass, 1.4)); R(c, dx + 6, 188, 1, 22, '#0c0e14'); R(c, dx + 1, 189, 3, 9, shade(L.glass, 2)); }
+}
+function decoTower(c, L, x, w, top, B) {
+  const S = tri(L.deco || shade(B.base, 1.45));
+  [[0, top + 44], [10, top + 20], [22, top]].forEach(([inset, ty]) => { const tx = x + inset, tw = w - inset * 2; R(c, tx, ty, tw, 210 - ty, S.base); R(c, tx, ty, 2, 210 - ty, S.light); R(c, tx + tw - 3, ty, 3, 210 - ty, S.dark); R(c, tx - 1, ty, tw + 2, 2, S.light); });
+  for (let wx = x + 5; wx < x + w - 6; wx += 8) {
+    const tt = wx < x + 10 || wx > x + w - 13 ? top + 46 : wx < x + 22 || wx > x + w - 27 ? top + 22 : top + 2;
+    for (let wy = tt + 4; wy < 172; wy += 7) R(c, wx, wy, 4, 5, rnd() < L.lit ? L.win : L.glass);
+    R(c, wx + 5, tt + 2, 1, 172 - tt, S.dark);
+  }
+  const cx = x + w / 2 | 0;
+  for (let i = 0; i < 18; i++) R(c, cx - 9 + (i >> 1), top - i * 2 - 2, 18 - (i >> 1) * 2, 2, i % 3 ? S.light : S.base);
+  R(c, cx, top - 52, 1, 16, S.dark);
+  R(c, x, 174, w, 36, S.dark); R(c, x, 174, w, 3, '#c9a23a');
+  R(c, cx - 10, 182, 20, 28, '#1a1410'); R(c, cx - 8, 184, 16, 26, shade(L.win, .8)); R(c, cx - 1, 184, 2, 26, '#1a1410'); R(c, cx - 12, 180, 24, 2, '#c9a23a');
+  [x + 6, x + w - 22].forEach(wx => win(c, L, wx, 184, 16, 18));
+  if (L.snow) R(c, x - 1, top + 42, w + 2, 2, '#eef2f8');
+}
+function warehouse(c, L, x, w, B) {
+  const top = 128 + (rnd() * 3 | 0) * 6, roof = '#4a4858';
+  R(c, x, top, w, 210 - top, B.base);
+  for (let y = top; y < 210; y += 4) R(c, x, y + 3, w, 1, B.dark);
+  R(c, x, top, 2, 210 - top, B.light);
+  for (let sx0 = x; sx0 < x + w - 4; sx0 += 22) { for (let i = 0; i < 22 && sx0 + i < x + w; i++) { const h = i * 14 / 22 | 0; R(c, sx0 + i, top - h, 1, h, i % 4 ? roof : shade(roof, .8)); } R(c, sx0 + 19, top - 14, 3, 14, shade(L.glass, 1.6)); if (L.snow) R(c, sx0, top - 2, 19, 2, '#eef2f8'); }
+  for (let wx = x + 6; wx < x + w - 10; wx += 14) {
+    if (rnd() < .3) { R(c, wx, top + 10, 8, 10, '#0c0a10'); R(c, wx + 1, top + 11, 3, 3, shade(L.glass, 1.5)); R(c, wx + 5, top + 16, 2, 3, shade(L.glass, 1.5)); }
+    else win(c, L, wx, top + 10, 8, 10);
+  }
+  txt(c, pick(L.wareSigns || ['DEPOT 9', 'STEEL CO', 'ACME', 'TEXTILE']), x + w / 2, top + 30, 2, 'rgba(240,230,210,.35)', 1, false);
+  for (let dx = x + 10; dx + 30 < x + w - 4; dx += 46) { R(c, dx - 2, 175, 34, 3, '#3a364a'); R(c, dx, 178, 30, 32, '#5a5668'); for (let y = 180; y < 210; y += 3) R(c, dx, y, 30, 1, '#46424f'); if (rnd() < .5) R(c, dx, 198, 30, 12, '#15131c'); }
+  if (rnd() < .6) { const cx = x + w - 20; R(c, cx, top - 56, 10, 56, B.dark); for (let y = top - 50; y < top; y += 10) R(c, cx, y, 10, 2, B.light); R(c, cx - 1, top - 58, 12, 3, shade(B.dark, .8)); }
+}
+function panelBlock(c, L, x, w, top) {
+  const con = L.panel || '#a8a8a0', d = shade(con, .78), acc = pick(['#c2564a', '#4a7ab0', '#e0b040', '#5a9a6a']);
+  R(c, x, top, w, 210 - top, con);
+  for (let py = top + 4; py < 184; py += 14) {
+    R(c, x, py - 1, w, 1, d);
+    for (let px = x + 4, k = 0; px < x + w - 14; px += 18, k++) {
+      R(c, px + 14, py, 1, 13, d); win(c, L, px + 2, py + 2, 9, 8);
+      if (k % 3 === 1 && rnd() < .7) { R(c, px, py + 10, 14, 4, shade(con, .88)); R(c, px, py + 10, 14, 1, shade(con, 1.15)); if (rnd() < .4) R(c, px + 2, py + 7, 3, 3, pick(['#c2564a', '#e0e0d0', '#4a7ab0'])); }
+    }
+  }
+  R(c, x + w - 12, top, 7, 184 - top, acc);
+  R(c, x - 1, top - 3, w + 2, 3, d); if (L.snow) R(c, x - 1, top - 5, w + 2, 2, '#eef2f8');
+  R(c, x + 20, top - 14, 1, 11, '#3a3a3a'); R(c, x + 16, top - 12, 9, 1, '#3a3a3a'); R(c, x + w - 40, top - 10, 1, 7, '#3a3a3a');
+  R(c, x, 184, w, 26, shade(con, .85)); const ex = x + (w >> 1);
+  R(c, ex - 14, 186, 28, 3, d); R(c, ex - 7, 189, 14, 21, '#5a4a3a'); R(c, ex - 5, 191, 10, 7, L.glass);
+  [x + 8, x + w - 30].forEach(wx => win(c, L, wx, 190, 18, 12));
+}
+function church(c, L, x, w, B) {
+  const bx = x + 26, bw = w - 26, top = 124, cx = bx + (bw >> 1);
+  R(c, bx, top, bw, 210 - top, B.base); for (let y = top + 2; y < 210; y += 4) R(c, bx, y, bw, 1, B.dark); R(c, bx, top, 2, 210 - top, B.light);
+  const gh = bw * .4 | 0; for (let h = 0; h < gh; h++) { const hw = (bw / 2 + 3) * (1 - h / gh) | 0; R(c, cx - hw, top - h, hw * 2, 1, h < 2 || hw < 3 ? B.light : B.base); }
+  disc(c, cx, top + 6, 8, '#15131c'); disc(c, cx, top + 6, 7, '#8a2a6a'); disc(c, cx, top + 6, 4, '#2a6ab0'); disc(c, cx, top + 6, 2, '#e0b040');
+  [cx - 22, cx + 16].forEach(lx => { R(c, lx, 146, 7, 24, '#15131c'); R(c, lx + 1, 147, 5, 22, (rnd() < .5 ? '#c2362f' : '#2a6ab0')); R(c, lx + 1, 155, 5, 2, '#e0b040'); R(c, lx + 2, 144, 3, 2, '#15131c'); });
+  R(c, cx - 9, 180, 18, 30, '#3a2014'); for (let i = 0; i < 4; i++) R(c, cx - 7 + i * 2, 177 - i, 14 - i * 4, 1, '#3a2014'); R(c, cx - 1, 180, 2, 30, '#22120c'); R(c, cx - 11, 207, 22, 3, '#8a8478');
+  const tx = x + 2, tw = 24; R(c, tx, 70, tw, 140, B.base); for (let y = 72; y < 210; y += 4) R(c, tx, y, tw, 1, B.dark); R(c, tx, 70, 2, 140, B.light); R(c, tx - 2, 68, tw + 4, 3, B.light);
+  for (let h = 0; h < 48; h++) { const hw = 12 * (1 - h / 48); R(c, tx + 12 - hw, 68 - h, hw * 2, 1, h % 4 ? '#4a4a5a' : '#5a5a6a'); }
+  R(c, tx + 11, 10, 2, 11, '#c9a23a'); R(c, tx + 8, 13, 8, 2, '#c9a23a');
+  R(c, tx + 7, 80, 10, 14, '#15131c'); R(c, tx + 9, 78, 6, 2, '#15131c'); disc(c, tx + 12, 106, 5, '#e8e0c8'); R(c, tx + 12, 103, 1, 3, '#15131c'); R(c, tx + 12, 106, 3, 1, '#15131c');
+}
+function gasStation(c, L, x) {
+  const col = pick(['#c2362f', '#2a6ab0', '#2f8a4a', '#e0a020']);
+  R(c, x + 50, 176, 56, 34, '#d8d4c8'); R(c, x + 50, 176, 56, 2, '#f0ece0'); R(c, x + 56, 184, 24, 16, L.glass); R(c, x + 57, 185, 8, 6, shade(L.glass, 1.7)); R(c, x + 86, 184, 14, 26, '#3a4a5a'); R(c, x + 88, 186, 10, 10, shade(L.glass, 1.5));
+  R(c, x + 4, 160, 104, 8, '#e8e8e0'); R(c, x + 4, 166, 104, 3, col); R(c, x + 4, 160, 104, 1, '#fff'); txt(c, pick(['GAS', 'FUEL', 'ESSENCE']), x + 56, 161, 1, col, 1, false);
+  if (L.snow) R(c, x + 4, 158, 104, 2, '#eef2f8');
+  R(c, x + 14, 169, 4, 41, '#c8c8c0'); R(c, x + 90, 169, 4, 41, '#c8c8c0');
+  [x + 26, x + 60].forEach(px => { R(c, px, 190, 10, 20, '#e8e8e0'); R(c, px + 1, 192, 8, 5, '#1c2a34'); R(c, px + 2, 193, 4, 2, '#7aff7a'); R(c, px, 200, 10, 2, col); R(c, px + 10, 194, 2, 8, '#2a2a2a'); });
+  ladderArt(c, x + 96, 161);
+}
+function casino(c, L, x, w) {
+  const col = pick(['#c2362f', '#8a2a8a', '#2a4ab0', '#1a8a6a']), name = pick(['LUCKY 7', 'GOLD', 'ACES', 'JACKPOT', 'ROYAL', 'DIAMANT']), neon = pick(['#ffe14a', '#ff6ec7', '#6ef0ff']);
+  R(c, x, 118, w, 92, shade(col, .45)); for (let i = x; i < x + w; i += 6) R(c, i, 118, 3, 92, shade(col, .58));
+  for (let wy = 124; wy < 160; wy += 12) for (let wx = x + 6; wx < x + w - 8; wx += 12) R(c, wx, wy, 6, 7, rnd() < .6 ? L.win : '#15131c');
+  R(c, x + 6, 78, w - 12, 38, '#15131c'); R(c, x + 8, 80, w - 16, 34, col);
+  for (let i = x + 9; i < x + w - 9; i += 4) { R(c, i, 81, 2, 2, '#fff6c8'); R(c, i, 111, 2, 2, '#fff6c8'); } for (let j = 85; j < 110; j += 4) { R(c, x + 9, j, 2, 2, '#fff6c8'); R(c, x + w - 11, j, 2, 2, '#fff6c8'); }
+  txt(c, name, x + w / 2, 89, 3, neon, 1);
+  c.globalCompositeOperation = 'lighter'; R(c, x + 2, 74, w - 4, 46, 'rgba(255,230,120,.07)'); c.globalCompositeOperation = 'source-over';
+  R(c, x + w / 2 - 38, 162, 76, 6, '#c9a23a'); for (let i = x + w / 2 - 36; i < x + w / 2 + 36; i += 4) R(c, i, 168, 2, 2, '#fff6c8');
+  R(c, x + w / 2 - 30, 170, 60, 40, '#1a1410'); R(c, x + w / 2 - 28, 172, 56, 38, shade(L.win, .7)); for (let dx = x + w / 2 - 28; dx < x + w / 2 + 28; dx += 14) R(c, dx, 172, 1, 38, '#1a1410');
+  deco(c, 'palm', x + 8, 210, 2); deco(c, 'palm', x + w - 8, 210, 2);
+}
+
+/* ---------- banlieues : maisons ---------- */
+function house(c, L, x, w, floors) {
+  const st = L.style, wallTop = floors === 2 ? 146 : 170;
+  const S = tri(st === 'cottage' ? '#d8b878' : st === 'mansion' ? '#f0ebe0' : pick(L.houses));
+  R(c, x, wallTop, w, 210 - wallTop, S.base);
+  if (st === 'ohio') for (let y = wallTop + 2; y < 210; y += 3) R(c, x, y, w, 1, S.dark);
+  else if (st === 'cottage') for (let y = wallTop, r = 0; y < 210; y += 5, r++) for (let bx = x - (r % 2) * 5; bx < x + w; bx += 10) R(c, Math.max(x, bx), y, Math.min(9, x + w - Math.max(x, bx)), 4, pick([S.base, S.light, shade(S.base, .9)]));
+  else for (let i = 0; i < w * 2; i++) R(c, x + rnd() * w, wallTop + rnd() * (210 - wallTop), 1, 1, S.dark);
+  R(c, x, wallTop, 2, 210 - wallTop, S.light); R(c, x + w - 2, wallTop, 2, 210 - wallTop, S.dark);
+  const rc = st === 'mansion' ? '#c8643a' : st === 'cottage' ? '#b89858' : pick(L.roofs), rh = st === 'mansion' ? w * .16 | 0 : st === 'cottage' ? w * .4 | 0 : w * .32 | 0;
+  if (st !== 'cottage') { const chx = x + w * .72 | 0; R(c, chx, wallTop - rh * .85 - 6 | 0, 8, rh * .7 | 0, '#8a4a3a'); R(c, chx - 1, wallTop - rh * .85 - 8 | 0, 10, 2, '#5a2a24'); }
+  for (let h = 0; h < rh; h++) { const hw = (w / 2 + 6) * (1 - h / rh) | 0; R(c, x + w / 2 - hw, wallTop - h - 1, hw * 2, 1, h % (st === 'cottage' ? 5 : 3) === 0 ? shade(rc, .78) : rc); }
+  if (st === 'mansion') for (let h = 1; h < rh; h += 3) { const hw = (w / 2 + 6) * (1 - h / rh) | 0; for (let i = x + w / 2 - hw; i < x + w / 2 + hw; i += 4) R(c, i, wallTop - h - 1, 2, 1, shade(rc, 1.2)); }
+  if (st === 'cottage') { R(c, x - 8, wallTop - 3, w + 16, 5, shade(rc, .85)); for (let i = x - 8; i < x + w + 8; i += 2) R(c, i, wallTop + 1, 1, 2 + (i % 3), shade(rc, .7)); R(c, x + w * .3 | 0, wallTop - rh * .7 - 10 | 0, 8, 14, '#a89070'); }
+  else R(c, x - 7, wallTop - 1, w + 14, 2, shade(rc, .6));
+  const shut = pick(['#2a4a6a', '#3a5a3a', '#6a2a2e', '#2a2a2a']), frame = st === 'cottage' ? '#4a3a2a' : '#f4f0e8';
+  const dx = x + (w >> 1) - 7 + (st === 'mansion' ? 0 : (rnd() < .5 ? -1 : 1) * (w * .22 | 0));
+  const rows = floors === 2 ? [156, 182] : [180];
+  rows.forEach(wy => {
+    const n = Math.max(1, (w - 12) / 24 | 0);
+    for (let i = 0; i < n; i++) {
+      const wx = x + 6 + (i + .5) * ((w - 12) / n) - 6 | 0;
+      if (wy > 175 && Math.abs(wx + 6 - (dx + 7)) < 16) continue;
+      win(c, L, wx, wy, 12, st === 'cottage' ? 11 : 14, frame);
+      if (st === 'ohio') { R(c, wx - 5, wy - 1, 4, 16, shut); R(c, wx + 13, wy - 1, 4, 16, shut); }
+      if (st === 'mansion') { R(c, wx + 1, wy - 3, 10, 2, frame); R(c, wx - 2, wy + 15, 16, 2, frame); }
+      if (st === 'cottage') { R(c, wx + 6, wy, 1, 11, frame); if (rnd() < .6) for (let k = 0; k < 4; k++) R(c, wx - 1 + k * 4, wy + 12, 2, 2, pick(['#e0354b', '#f08ab0', '#e8e0f0'])); }
+    }
+  });
+  const dc = pick(['#c2362f', '#2a4a6a', '#3a5a3a', '#f4f0e8', '#1a1a1a']);
+  R(c, dx, 184, 14, 26, frame); R(c, dx + 1, 185, 12, 25, dc); R(c, dx + 3, 187, 8, 6, L.glass); R(c, dx + 10, 198, 2, 2, '#d9a441');
+  if (st === 'mansion') { R(c, dx - 14, 174, 42, 4, frame); [dx - 12, dx - 5, dx + 17, dx + 24].forEach(px => R(c, px, 178, 3, 32, frame)); R(c, dx - 16, 207, 46, 3, '#c8c0b0'); }
+  else { R(c, dx - 6, 179, 26, 3, rc); R(c, dx - 5, 182, 2, 28, frame); R(c, dx + 17, 182, 2, 28, frame); R(c, dx - 3, 207, 20, 3, '#9a948a'); }
+  return dx;
+}
+function yardFront(c, L, x, w, door) {
+  const st = L.style, gap = fx => door !== undefined && fx > door - 3 && fx < door + 16;
+  if (st === 'mansion') {
+    for (let i = x; i < x + w; i += 6) if (!gap(i)) leafBall(c, i + 3, 198, 6, P3('#2e6a3a'));
+    for (let i = x; i < x + w; i += 2) if (!gap(i)) R(c, i, 198, 2, 12, i % 4 ? '#245a30' : '#2e6a3a');
+    if (door !== undefined) { R(c, door - 6, 186, 5, 24, '#e8e0d0'); R(c, door + 15, 186, 5, 24, '#e8e0d0'); disc(c, door - 4, 185, 3, '#e8e0d0'); disc(c, door + 17, 185, 3, '#e8e0d0'); }
+  } else if (st === 'cottage') {
+    for (let y = 199; y < 210; y += 4) for (let bx = x + ((y / 4 | 0) % 2) * 5; bx < x + w; bx += 10) if (!gap(bx) && !gap(bx + 8)) R(c, bx, y, 9, 3, pick(['#c8ac74', '#b09460', '#d4b880']));
+    for (let i = x; i < x + w; i += 3) if (!gap(i)) R(c, i, 197, 3, 2, rnd() < .3 ? '#e0354b' : '#5a8a3a');
+  } else {
+    for (let fx = x + 2; fx < x + w; fx += 4) { if (gap(fx)) continue; R(c, fx, 199, 2, 11, '#f4f0e8'); R(c, fx, 198, 1, 1, '#f4f0e8'); }
+    for (let fx = x; fx < x + w; fx++) if (!gap(fx)) { R(c, fx, 202, 1, 1, '#d8d4c8'); R(c, fx, 207, 1, 1, '#d8d4c8'); }
+    if (rnd() < .6) { const mx = x + w - 10; R(c, mx, 196, 2, 14, '#6a4a2a'); R(c, mx - 3, 192, 8, 5, pick(['#2a4a8a', '#c2362f', '#2a2a2a'])); R(c, mx + 5, 189, 1, 4, '#e0354b'); }
+  }
+}
+function genSuburb(c, L) {
+  const end = L.len - 200, st = L.style, tree = st === 'mansion' ? 'palm' : 'tree', sid = L.houses ? pick(L.houses) : '#d8d0c0';
+  let x = 0, last = 0, alt = 0, pi = 0, first = true, prev = '';
+  const np = () => L.picks[pi++ % L.picks.length];
+  while (x < end - 30) {
+    let t = first ? 'house' : x - last > 340 ? (alt++ % 2 ? 'treehouse' : 'garage') : pick(['house', 'house', 'house', 'yard']);
+    if (t === prev && t === 'yard') t = 'house';
+    first = false;
+    let w = t === 'house' ? (st === 'mansion' ? 150 + (rnd() * 2 | 0) * 20 : 104 + (rnd() * 3 | 0) * 14) : t === 'garage' ? 84 : t === 'treehouse' ? 88 : 50 + (rnd() * 2 | 0) * 20;
+    if (x + w > end) { t = 'yard'; w = end - x; }
+    if (t === 'house') { const d = house(c, L, x + 8, w - 16, st === 'cottage' ? 1 + (rnd() < .35) : rnd() < .7 ? 2 : 1); yardFront(c, L, x, w, d); }
+    else if (t === 'garage') {
+      const gx = x + 6, S = tri(st === 'cottage' ? '#c8a868' : st === 'mansion' ? '#e8e0d0' : sid);
+      R(c, gx, 168, 66, 42, S.base); if (st === 'ohio') for (let y = 170; y < 210; y += 3) R(c, gx, y, 66, 1, S.dark); R(c, gx, 168, 2, 42, S.light);
+      R(c, gx - 2, 164, 70, 4, '#5a5450'); R(c, gx - 2, 164, 70, 1, '#7a746e');
+      R(c, gx + 8, 178, 50, 32, '#e8e4dc'); for (let y = 184; y < 210; y += 6) R(c, gx + 8, y, 50, 1, '#b8b4ac'); for (let k = 0; k < 4; k++) R(c, gx + 11 + k * 12, 180, 9, 3, L.glass);
+      if (st === 'ohio') { R(c, gx + 26, 146, 16, 12, '#f4f0e8'); R(c, gx + 30, 150, 8, 5, '#e06a3c'); R(c, gx + 33, 158, 2, 6, '#3a3a3a'); for (let i = 0; i < 5; i++) R(c, gx + 30 + i * 2, 158, 1, 3, '#f4f0e8'); }
+      ladderArt(c, x + 72, 165);
+      const pl = { x: gx - 2, w: 70, y: 164 }; W.plats.push(pl); W.lads.push({ cx: x + 77, top: 164, plat: pl }); W.picks.push({ x: gx + 20, y: 164, type: np() }); last = x;
+      yardFront(c, L, x + 72, w - 72);
+    } else if (t === 'treehouse') {
+      const tx = x + 38, lv = st === 'mansion' ? ['#3a7a3a', '#2e6a34'] : st === 'cottage' ? ['#3a6a2e', '#4a7a34'] : ['#d8622a', '#e8a030', '#3a7a3a'];
+      R(c, tx - 6, 120, 12, 90, '#5a4028'); R(c, tx - 6, 120, 2, 90, '#7a5a3a'); R(c, tx - 16, 112, 12, 4, '#5a4028'); R(c, tx + 6, 108, 14, 4, '#5a4028');
+      for (let j = 0; j < 9; j++) leafBall(c, tx + (rnd() - .5) * 80 | 0, 92 + (rnd() - .5) * 44 | 0, 14 + (rnd() * 8 | 0), P3(pick(lv)));
+      R(c, x + 6, 150, 70, 4, '#7a5632'); R(c, x + 6, 150, 70, 1, '#9a7442'); for (let i = x + 8; i < x + 76; i += 6) R(c, i, 154, 1, 6, '#5a3e22');
+      R(c, x + 20, 124, 36, 26, '#8a6440'); for (let y = 126; y < 150; y += 4) R(c, x + 20, y, 36, 1, '#6a4a2a');
+      for (let h = 0; h < 12; h++) R(c, x + 16 + h, 123 - h, 44 - h * 2, 1, h % 3 ? '#a83a2a' : '#8a2a1e'); R(c, x + 30, 132, 10, 8, L.glass); R(c, x + 34, 132, 1, 8, '#6a4a2a');
+      ladderArt(c, x + 66, 151);
+      const pl = { x: x + 6, w: 70, y: 150 }; W.plats.push(pl); W.lads.push({ cx: x + 71, top: 150, plat: pl }); W.picks.push({ x: x + 14, y: 150, type: np() }); last = x;
+    } else {
+      deco(c, tree, x + (w >> 1), 206, 2);
+      if (st === 'ohio' && rnd() < .5) { R(c, x + 8, 196, 3, 14, '#6a6a6a'); R(c, x + 24, 196, 3, 14, '#6a6a6a'); R(c, x + 8, 194, 19, 2, '#6a6a6a'); R(c, x + 16, 196, 1, 8, '#3a3a3a'); R(c, x + 14, 204, 5, 2, '#c2362f'); }
+      yardFront(c, L, x, w);
+    }
+    prev = t; x += w;
+  }
+  street(c, L.len, L); bunker(c, L.len - 200, '#8a8a80');
+}
+
+/* ---------- bidonvilles ---------- */
+function shack(c, L, x, w, top) {
+  const roofC = L.roofC;
+  for (let px = x; px < x + w;) {
+    const pw = Math.min(x + w - px, 8 + (rnd() * 10 | 0)), col = pick(L.shacks.concat(['#7a6a5a', '#8a5a3a', '#6a7a8a', '#9a9a94'])), k = rnd();
+    R(c, px, top, pw, 210 - top, col);
+    if (k < .4) for (let i = px; i < px + pw; i += 2) R(c, i, top, 1, 210 - top, shade(col, .82));
+    else if (k < .7) for (let y = top + 3; y < 210; y += 4) R(c, px, y, pw, 1, shade(col, .75));
+    else R(c, px, top, 1, 210 - top, shade(col, 1.2));
+    if (rnd() < .5) R(c, px + rnd() * pw, top + 6 + rnd() * 30, 2, 2, '#8a4a2a');
+    px += pw;
+  }
+  for (let i = 0; i < w + 10; i++) { const y = top - 7 + (i * 5 / (w + 10) | 0); R(c, x - 5 + i, y, 1, 4, i % 3 ? roofC : shade(roofC, .7)); }
+  if (rnd() < .5) { disc(c, x + 8, top - 7, 2, '#2a2a2a'); R(c, x + w - 12, top - 8, 5, 2, '#5a5a5a'); }
+  if (L.tarp && rnd() < .5) { R(c, x + 4, top - 3, w * .55 | 0, 3, L.tarp); R(c, x + 4, top, 2, 6, L.tarp); }
+  const dx = x + 2 + (rnd() * (w - 16) | 0), dc = pick(['#2a6ab0', '#c2362f', '#e0a020', '#3a8a5a', '#8a3a8a']);
+  R(c, dx, 184, 12, 26, '#15131c'); R(c, dx, 184, 12, 22, dc); for (let i = dx + 2; i < dx + 12; i += 3) R(c, i, 184, 1, 22, shade(dc, .75));
+  const wx = dx > x + w / 2 ? x + 5 : x + w - 15; R(c, wx, 172, 10, 8, rnd() < L.lit ? L.win : '#15131c'); R(c, wx - 1, 171, 12, 1, '#5a4a3a'); R(c, wx + 3, 172, 1, 8, '#5a4a3a'); R(c, wx + 6, 172, 1, 8, '#5a4a3a');
+  if (rnd() < .35) { const sg = pick(L.signs || ['SODA', 'BAR', 'SHOP']), sw = sg.length * 4 + 5, nc = L.neonSigns ? pick(['#ff6ec7', '#6ef0ff', '#ffe14a']) : '#15131c'; R(c, x + 3, top + 2, sw, 9, L.neonSigns ? '#15131c' : '#e8e0c8'); txt(c, sg, x + 3 + sw / 2, top + 4, 1, nc, 1, false); if (L.neonSigns) { c.globalCompositeOperation = 'lighter'; R(c, x + 1, top, sw + 4, 13, 'rgba(255,120,200,.08)'); c.globalCompositeOperation = 'source-over'; } }
+  if (rnd() < .4) { R(c, x + w - 9, 198, 7, 12, pick(['#3a5a8a', '#8a3a2a', '#4a6a3a'])); R(c, x + w - 9, 201, 7, 1, '#15131c'); R(c, x + w - 9, 206, 7, 1, '#15131c'); }
+}
+function genSlum(c, L) {
+  const end = L.len - 200, hill = x => 66 + 26 * Math.sin(x / 170) + 12 * Math.sin(x / 53 + 1) | 0, dirt = L.dirt, roofC = L.roofC;
+  for (let x = 0; x < end; x++) { const h = hill(x); R(c, x, h, 1, 210 - h, x % 3 ? dirt : shade(dirt, .9)); }
+  for (let r = 0; r < 7; r++) {
+    const base = 84 + r * 15, dk = .6 + r * .06;
+    for (let x = rnd() * 10 | 0; x < end - 4;) {
+      const sw = 12 + (rnd() * 16 | 0), sh = 11 + (rnd() * 8 | 0), b = base + (rnd() * 4 | 0);
+      if (b - sh > hill(x + sw / 2) - 4) {
+        const col = shade(pick(L.shacks), dk), top = b - sh;
+        R(c, x, top, sw, sh + 6, col); R(c, x, top, 1, sh + 6, shade(col, 1.2));
+        R(c, x - 1, top - 2, sw + 2, 2, shade(roofC, dk)); for (let i = x; i < x + sw; i += 2) R(c, i, top - 2, 1, 2, shade(roofC, dk * .8));
+        R(c, x + 3, top + 3, 3, 3, rnd() < L.lit ? L.win : '#15131c'); if (sw > 18) R(c, x + sw - 7, top + 4, 3, sh - 4, '#15131c');
+        if (rnd() < .18) { R(c, x + 2, top - 7, 6, 5, shade('#2a6ab0', dk)); R(c, x + 2, top - 7, 6, 1, shade('#5a9ad0', dk)); }
+        if (rnd() < .12) { R(c, x + sw - 3, top - 9, 1, 7, '#2a2a2a'); R(c, x + sw - 6, top - 8, 7, 1, '#2a2a2a'); }
+        if (rnd() < .15) for (let i = 0; i < sw; i += 3) R(c, x + i, top + 1, 2, 3, pick(['#e0354b', '#f4f0e4', '#e0b040', '#4a7ab0']));
+      }
+      x += sw + (rnd() < .2 ? 3 : 0);
+    }
+  }
+  const poles = []; for (let px = 40; px < end; px += 70 + (rnd() * 40 | 0)) { R(c, px, 110, 2, 100, '#3a2a1e'); R(c, px - 5, 112, 12, 1, '#3a2a1e'); poles.push(px); }
+  for (let i = 0; i < poles.length - 1; i++) { const a = poles[i], d = poles[i + 1] - a; for (let t = 0; t < d; t++) { const sg = Math.sin(Math.PI * t / d); R(c, a + t, 113 + sg * 10, 1, 1, '#15131c'); R(c, a + t, 115 + sg * 13, 1, 1, '#15131c'); } }
+  let x = 0, last = 0, alt = 0, prev = '', pi = 0, first = true;
+  const np = () => L.picks[pi++ % L.picks.length];
+  while (x < end - 30) {
+    let t = first ? 'shack' : x - last > 340 ? (alt++ % 2 ? 'tank' : 'block') : pick(['shack', 'shack', 'stall', 'gap', 'shack']);
+    if (t === prev && t !== 'shack') t = 'shack';
+    first = false;
+    let w = t === 'shack' ? 44 + (rnd() * 4 | 0) * 10 : t === 'block' ? 92 : t === 'tank' ? 64 : t === 'stall' ? 50 : 26;
+    if (x + w > end) { t = 'gap'; w = end - x; }
+    if (t === 'shack') shack(c, L, x, w, 156 + (rnd() * 5 | 0) * 6);
+    else if (t === 'block') {
+      R(c, x + 6, 140, w - 12, 70, '#9a948a'); for (let y = 140, r = 0; y < 210; y += 5, r++) { R(c, x + 6, y + 4, w - 12, 1, '#7a746a'); for (let bx = x + 6 + (r % 2) * 5; bx < x + w - 6; bx += 10) R(c, bx, y, 1, 4, '#7a746a'); }
+      R(c, x + 2, 136, w - 4, 5, '#7a746a'); R(c, x + 2, 136, w - 4, 1, '#a8a296'); R(c, x + 10, 126, 1, 10, '#6a3a2a'); R(c, x + 14, 129, 1, 7, '#6a3a2a');
+      R(c, x + w - 34, 120, 16, 14, '#2a6ab0'); R(c, x + w - 34, 120, 16, 2, '#5a9ad0'); R(c, x + w - 32, 134, 2, 2, '#3a3a3a'); R(c, x + w - 22, 134, 2, 2, '#3a3a3a');
+      [[x + 14, 150], [x + 50, 150], [x + 14, 176]].forEach(([wx, wy]) => { R(c, wx, wy, 14, 12, rnd() < L.lit ? L.win : '#15131c'); for (let k = wx + 3; k < wx + 14; k += 4) R(c, k, wy, 1, 12, '#3a3a3a'); });
+      R(c, x + 50, 180, 14, 30, '#5a4a3a'); R(c, x + 52, 182, 10, 28, pick(['#2a6ab0', '#c2362f']));
+      ladderArt(c, x + w - 16, 137);
+      const pl = { x: x + 2, w: w - 4, y: 136 }; W.plats.push(pl); W.lads.push({ cx: x + w - 11, top: 136, plat: pl }); W.picks.push({ x: x + 24, y: 136, type: np() }); last = x;
+    } else if (t === 'tank') {
+      [x + 6, x + 54].forEach(px => R(c, px, 150, 4, 60, '#5a3e22')); for (let i = 0; i < 44; i++) { R(c, x + 10 + i, 156 + i * 1.2, 1, 1, '#5a3e22'); R(c, x + 53 - i, 156 + i * 1.2, 1, 1, '#5a3e22'); }
+      R(c, x + 4, 150, 56, 4, '#7a5632'); R(c, x + 4, 150, 56, 1, '#9a7442');
+      R(c, x + 12, 118, 30, 32, '#2a6ab0'); R(c, x + 12, 118, 30, 3, '#5a9ad0'); R(c, x + 12, 118, 3, 32, '#4a8ac8'); for (let y = 126; y < 150; y += 8) R(c, x + 12, y, 30, 1, '#1a4a80');
+      ladderArt(c, x + 44, 151);
+      const pl = { x: x + 4, w: 56, y: 150 }; W.plats.push(pl); W.lads.push({ cx: x + 49, top: 150, plat: pl }); W.picks.push({ x: x + 50, y: 150, type: np() }); last = x;
+    } else if (t === 'stall') {
+      const tc = pick(['#c2362f', '#2a6ab0', '#e0a020', '#3a8a5a']);
+      R(c, x + 4, 176, 2, 34, '#5a3e22'); R(c, x + w - 6, 176, 2, 34, '#5a3e22');
+      for (let i = 0; i < w; i += 6) R(c, x + i, 172, 6, 6, (i / 6 | 0) % 2 ? tc : '#f4f0e4'); R(c, x, 178, w, 1, shade(tc, .6));
+      R(c, x + 6, 196, w - 12, 14, '#7a5632'); R(c, x + 6, 196, w - 12, 1, '#9a7442');
+      for (let i = x + 8; i < x + w - 8; i += 3) R(c, i, 193, 2, 3, pick(['#e0354b', '#e0b040', '#7ab03a', '#f08a3c']));
+    } else {
+      R(c, x, 120, w, 90, 'rgba(10,6,22,.45)'); R(c, x, 168, w, 1, '#15131c'); for (let i = x + 2; i < x + w - 2; i += 4) R(c, i, 169, 3, 5, pick(['#e0354b', '#f4f0e4', '#e0b040', '#4a7ab0']));
+      R(c, x + 4, 202, 9, 8, '#3a3a3a'); disc(c, x + w - 8, 206, 4, '#1a1a1a');
+    }
+    prev = t; x += w;
+  }
+  street(c, L.len, L); bunker(c, L.len - 200, '#7a7468');
+}
+
 /* ============ génération d'un niveau ============ */
 function prop(w, h, x, top, base, fn, solid) {
   const cn = mk(w, h), g = cn.getContext('2d'); g.translate(-x, -top); fn(g); W.props.push({ img: cn, x, top, base, w });
@@ -524,7 +861,7 @@ function furniture(c, L) {
     lampGlow(c, px, L.glow);
     prop(24, 114, px - 18, 114, 226, g => { R(g, px, 116, 3, 110, '#0d0b14'); R(g, px - 2, 222, 7, 4, '#0d0b14'); R(g, px - 12, 116, 14, 2, '#0d0b14'); R(g, px - 16, 117, 9, 4, '#0d0b14'); R(g, px - 15, 121, 7, 2, '#fff0c0'); });
   }
-  if (L.kind === 'city') for (let hx = 260; hx < L.len - 260; hx += 300 + (rnd() * 200 | 0)) {
+  if (L.kind === 'city' || (L.kind === 'suburb' && L.style !== 'mansion')) for (let hx = 260; hx < L.len - 260; hx += 300 + (rnd() * 200 | 0)) {
     if (L.phone && rnd() < .6) prop(16, 36, hx - 1, 190, 226, g => { R(g, hx, 192, 14, 34, '#c2262f'); R(g, hx, 192, 14, 2, '#e0453a'); R(g, hx + 2, 197, 10, 22, '#1c2a34'); R(g, hx + 6, 197, 2, 22, '#c2262f'); R(g, hx + 2, 204, 10, 1, '#c2262f'); R(g, hx + 2, 211, 10, 1, '#c2262f'); R(g, hx + 1, 190, 12, 2, '#c2262f'); });
     else prop(12, 16, hx - 1, 210, 225, g => { R(g, hx + 1, 213, 6, 11, '#c2362f'); R(g, hx, 212, 8, 2, '#e0554a'); R(g, hx + 2, 210, 4, 2, '#e0554a'); R(g, hx - 1, 216, 10, 3, '#c2362f'); R(g, hx + 3, 216, 2, 2, '#7a1c1c'); R(g, hx, 223, 8, 2, '#8a2420'); });
   }
@@ -532,23 +869,26 @@ function furniture(c, L) {
     if (rnd() < .5) prop(16, 48, hx - 1, 178, 226, g => { R(g, hx + 1, 188, 12, 38, '#24523a'); R(g, hx + 1, 188, 2, 38, '#34704e'); R(g, hx, 185, 14, 4, '#1c4430'); R(g, hx + 2, 181, 10, 4, '#24523a'); R(g, hx + 5, 178, 4, 3, '#1c4430'); R(g, hx, 222, 14, 4, '#1c4430'); R(g, hx + 3, 193, 8, 11, '#e9dfc0'); R(g, hx + 4, 195, 6, 4, '#b8463c'); R(g, hx + 3, 207, 8, 11, '#e0b040'); R(g, hx + 4, 211, 6, 3, '#3a5a9a'); });
     else prop(26, 56, hx - 11, 170, 226, g => { R(g, hx, 184, 3, 42, '#24523a'); R(g, hx - 2, 222, 7, 4, '#1c4430'); R(g, hx - 11, 178, 25, 11, '#1c4430'); R(g, hx - 10, 179, 23, 9, '#b01c2c'); txt(g, 'METRO', hx + 2, 181, 1, '#fff', 1, false); disc(g, hx + 1, 173, 3, '#ffe9a8'); R(g, hx, 176, 3, 2, '#24523a'); });
   }
-  const cols = L.kind === 'city' ? ['#5a6a8a', '#7a2a2e', '#3a6a5a', '#8a8a94'] : L.kind === 'paris' ? ['#3a4a6a', '#8a8a94', '#6a2a2e', '#d8d4c8'] : L.kind === 'base' ? [shade(L.metal, .8)] : L.kind === 'forest' ? ['#7a3a2a', '#4a5a3a'] : ['#b89a5a', '#8a6a4a'];
+  const cols = L.kind === 'suburb' ? ['#3a5a8a', '#c8c8c8', '#7a2a2e', '#2e4a3a', '#e0e0d8'] : L.kind === 'slum' ? ['#8a6a4a', '#5a6a4a', '#c2362f', '#e0b040', '#4a7ab0'] : L.kind === 'city' ? ['#5a6a8a', '#7a2a2e', '#3a6a5a', '#8a8a94'] : L.kind === 'paris' ? ['#3a4a6a', '#8a8a94', '#6a2a2e', '#d8d4c8'] : L.kind === 'base' ? [shade(L.metal, .8)] : L.kind === 'forest' ? ['#7a3a2a', '#4a5a3a'] : ['#b89a5a', '#8a6a4a'];
   for (let cx = 120, i = 0; cx < L.len - 320; cx += 420 + (rnd() * 280 | 0), i++) {
     const x = cx, taxi = L.taxi && i % 2 === 0, col = taxi ? '#e0a81e' : pick(cols);
-    prop(84, 38, x - 3, 229, 263, g => L.kind === 'city' || L.kind === 'paris' ? carArt(g, x, col, taxi) : jeepArt(g, x, col, L.kind === 'base'), { x0: x, x1: x + 76, y0: 246 });
+    prop(84, 38, x - 3, 229, 263, g => ['city', 'paris', 'suburb', 'slum'].includes(L.kind) ? carArt(g, x, col, taxi) : jeepArt(g, x, col, L.kind === 'base'), { x0: x, x1: x + 76, y0: 246 });
   }
 }
 function genCity(c, L) {
-  const end = L.len - 200, B = L.bricks.map(tri); let x = -10, last = 0, alt = 0, prev = '', pi = 0, first = true;
+  const end = L.len - 200, B = L.bricks.map(tri), mix = L.mix || ['ten', 'ten', 'lot', 'alley', 'ten', 'lot'], spec = L.specials || ['gar', 'scaf', 'gas'];
+  const solid = k => k !== 'lot' && k !== 'alley', W0 = { gar: 90, alley: 30, scaf: 130, gas: 112, church: 96, casino: 150 };
+  let x = -10, last = 0, alt = 0, prev = '', pi = 0, first = true;
   const np = () => L.picks[pi++ % L.picks.length];
   while (x < end - 30) {
-    let t = first ? 'ten' : x - last > 360 ? (alt++ % 2 ? 'scaf' : 'gar') : pick(['ten', 'ten', 'lot', 'alley', 'ten', 'lot']);
-    if (t === prev && t !== 'ten') t = 'ten';
+    let t = first ? mix.find(solid) : x - last > 360 ? spec[alt++ % spec.length] : pick(mix);
+    if (t === prev && t !== 'ten' && t !== 'glass' && t !== 'brown') t = mix.find(k => solid(k) && k !== t) || 'ten';
     first = false;
-    let w = t === 'gar' ? 90 : t === 'alley' ? 30 : t === 'lot' ? 80 + (rnd() * 3 | 0) * 20 : t === 'scaf' ? 130 : 110 + (rnd() * 4 | 0) * 10;
+    let w = W0[t] || (t === 'lot' ? 80 + (rnd() * 3 | 0) * 20 : t === 'ware' ? 130 + (rnd() * 3 | 0) * 20 : t === 'panel' ? 124 + (rnd() * 2 | 0) * 20 : t === 'glass' ? 90 + (rnd() * 3 | 0) * 20 : t === 'deco' ? 104 + (rnd() * 2 | 0) * 16 : t === 'brown' ? 74 + (rnd() * 2 | 0) * 14 : 110 + (rnd() * 4 | 0) * 10);
     if (x + w > end) { t = 'lot'; w = end - x; }
+    const top = L.tops[0] + rnd() * (L.tops[1] - L.tops[0]) | 0;
     if (t === 'ten' || t === 'scaf') {
-      const top = L.tops[0] + rnd() * (L.tops[1] - L.tops[0]) | 0, rows = building(c, L, x, w, top, pick(B), 30 + (rnd() * 4 | 0) * 2);
+      const rows = building(c, L, x, w, top, pick(B), 30 + (rnd() * 4 | 0) * 2);
       if (t === 'scaf') {
         metalDoor(c, x + 16); fireEscape(c, x + 12, 44, rows.slice(0, -1)); scaffold(c, x + 62);
         const pl = { x: x + 62, w: 58, y: 167 }; W.plats.push(pl); W.lads.push({ cx: x + 75, top: 167, plat: pl }); W.picks.push({ x: x + 102, y: 167, type: np() }); last = x;
@@ -557,6 +897,15 @@ function genCity(c, L) {
         if (g < .45 && w >= 110) shop(c, L, x, w); else if (g < .78) { stoop(c, x + (w >> 1) - 13); boarded(c, x + 14); cans(c, x + w - 30); } else { metalDoor(c, x + 20); boarded(c, x + w - 34); }
         if (!L.mansard || rnd() < .4) fireEscape(c, rnd() < .5 ? x + w - 60 : x + 12, 46, rows);
       }
+    } else if (t === 'brown') brownstone(c, L, x, w, Math.max(top, 40) + 30, pick(B));
+    else if (t === 'glass') glassTower(c, L, x, w, top - 40);
+    else if (t === 'deco') decoTower(c, L, x, w, top - 20, pick(B));
+    else if (t === 'ware') warehouse(c, L, x, w, pick(B));
+    else if (t === 'panel') panelBlock(c, L, x, w, Math.max(top, 0) - 10);
+    else if (t === 'church') church(c, L, x, w, pick(B));
+    else if (t === 'casino') casino(c, L, x, w);
+    else if (t === 'gas') {
+      gasStation(c, L, x); const pl = { x: x + 4, w: 104, y: 160 }; W.plats.push(pl); W.lads.push({ cx: x + 101, top: 160, plat: pl }); W.picks.push({ x: x + 40, y: 160, type: np() }); last = x;
     } else if (t === 'gar') {
       garage(c, L, x); const pl = { x: x - 2, w: 94, y: 145 }; W.plats.push(pl); W.lads.push({ cx: x + 81, top: 145, plat: pl }); W.picks.push({ x: x + 34, y: 145, type: np() }); last = x;
     } else if (t === 'lot') {
@@ -804,7 +1153,7 @@ function loadLevel(i) {
   W = { plats: [], lads: [], picks: [], props: [], solids: [] };
   sky = skyCanvas(L); far = farLayer(L); mid = midLayer(L);
   world = mk(L.len, H); const c = world.getContext('2d');
-  ({ city: genCity, base: genBase, ruins: genRuins, paris: genParis, forest: genForest })[L.kind](c, L);
+  ({ city: genCity, base: genBase, ruins: genRuins, paris: genParis, forest: genForest, suburb: genSuburb, slum: genSlum })[L.kind](c, L);
   furniture(c, L);
   p = { x: 40, y: 220, vy: 0, dir: 1, hp: 100, st: 'ground', plat: null, lad: null, gun: 'pistol', ammo: 18, melee: 'batte', cd: 0, inv: 0, swing: 0, flash: 0, walk: 0, speedT: 0 };
   if (carry) { p.gun = carry.gun; p.ammo = Math.max(carry.ammo, 12); p.melee = carry.melee; carry = null; }
@@ -817,7 +1166,7 @@ function loadLevel(i) {
     if (W.lads.some(l => Math.abs(l.cx - sxp) < 40) || W.props.some(o => o.base <= 226 && Math.abs(o.x + o.w / 2 - sxp) < 24)) continue;
     W.secret = { x: sxp, done: SV.secrets.includes(i) }; break;
   }
-  L.zmax = Math.min(20, 10 + (i * .5 | 0)); L.rate = Math.max(.6, 1.25 - i * .035); L.types = i < 1 ? 'n' : i < 3 ? 'nnnr' : i < 6 ? 'nnnrra' : 'nnrraa'; L.hpx = 1 + i * .05;
+  L.zmax = Math.min(20, 10 + (i * .5 | 0)); L.rate = Math.max(.6, 1.25 - i * .035); L.types = i < 1 ? 'n' : i < 3 ? 'nnnr' : i < 6 ? 'nnnrra' : 'nnrraa'; L.hpx = 1 + i * .04;
   [230, 290, 350, 410, 470, 540, 610].forEach(x => spawn(x));
 }
 function spawn(x, forceT) {

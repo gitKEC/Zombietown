@@ -4,7 +4,7 @@ Jeu de zombies 2D en pixel art, à défilement horizontal, pour téléphone en m
 
 - Joystick à gauche : se déplacer sur le trottoir et la route, monter aux échelles jaunes
 - Bouton à droite : tirer, ou frapper avec l'arme de mêlée quand il n'y a plus de munitions
-- 20 niveaux autour du monde, un boss tous les 5 niveaux. Atteindre le bunker valide le niveau.
+- 30 niveaux autour du monde (villes, banlieues, bidonvilles, forêts, déserts, bases militaires), un boss tous les 5 niveaux. Atteindre le bunker valide le niveau.
 - Pièces cachées : une trappe dans certains niveaux mène à une cave pleine de pièces
 - 10 quêtes qui rapportent des pièces
 - Animaux de compagnie (poule, berger allemand, autruche) qui attaquent les zombies
